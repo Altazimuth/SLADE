@@ -368,7 +368,7 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 
 	cumulative = !archive->getEntry("F_START");
 
-	while(cursor < eodata && *cursor != ANIM_STOP)
+	while (cursor < eodata && *cursor != ANIM_STOP)
 	{
 		firstnum = lastnum = -1;
 			// set the warning flags to false
@@ -402,7 +402,7 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 		anim_oppositenumbering = firstnum > lastnum && firstnum != -1 && lastnum != -1;
 		anim_differingnames = !firstname.IsSameAs(lastname);
 
-		if(cumulative)
+		if (cumulative)
 		{
 			Archive* base = theArchiveManager->baseResourceArchive();
 			anim_firstflatnoexist = !theResourceManager->getFlatEntry(animation->first, base);
@@ -436,17 +436,17 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 			{
 				warn = true;
 				warnstr.Append("Non-existent first flat.\n");
-				if(!anim_lasttexturenoexist)
+				if (!anim_lasttexturenoexist)
 					wrongtype = true;
 			}
 			if (anim_firstflatnoexist)
 			{
 				warn = true;
 				warnstr.Append("Non-existent last flat.\n");
-				if(!anim_firsttexturenoexist)
+				if (!anim_firsttexturenoexist)
 					wrongtype = true; 
 			}
-			if(wrongtype)
+			if (wrongtype)
 				warnstr.Append("Consider changing the type field to either 1 or 3 (texture).\n");
 		}
 		else //texture
@@ -456,21 +456,21 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 			{
 				warn = true;
 				warnstr.Append("Non-existent first texture.\n");
-				if(!anim_lastflatnoexist)
+				if (!anim_lastflatnoexist)
 					wrongtype = true;
 			}
 			if (anim_firsttexturenoexist)
 			{
 				warn = true;
 				warnstr.Append("Non-existent last texture.\n");
-				if(!anim_firstflatnoexist)
+				if (!anim_firstflatnoexist)
 					wrongtype = true;
 			}
-			if(wrongtype)
+			if (wrongtype)
 				warnstr.Append("Consider changing the type field to either 0 or 2 (flat).\n");
 		}
 
-		if(warn)
+		if (warn)
 		{
 			output.Append(warnstr + '\n');
 			numwarnings++;
