@@ -359,7 +359,7 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 	string conversion;
 	int lasttype = -1;
 
-	string tempstr, firststr, laststr, firstname, lastname;
+	string tempstr, firststr, laststr, firstname, lastname, warnstr;
 	int firstnum, lastnum;
 	bool cumulative, warn;
 	bool anim_oppositenumbering, anim_differingnames,
@@ -385,6 +385,8 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 		}
 		animation = (animated_t*)cursor;
 		cursor += sizeof(animated_t);
+		warnstr = string::Format("ANIMATED number: %d. First: %s, Last: %s. ",
+			animnum, animation->last, animation->first);
 
 		auto partitiontexturename = [](string texture, string &name, int &num) {
 			size_t last_alpha_index;
@@ -418,55 +420,59 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 		// keep it consistent in the strings
 		if (anim_oppositenumbering)
 		{
-			wxLogMessage(string::Format(
-				"Opposite numbering for ANIMATED number: %d. First: %s, Last: %s.",
-				animnum, animation->last, animation->first));
+			warn = true;
+			warnstr.Append("Opposite numbering. ");
 		}
 		if (anim_differingnames)
 		{
-			wxLogMessage(string::Format(
-				"Differing names for ANIMATED number: %d. First: %s, Last: %s.",
-					animnum, animation->last, animation->first));
+			warn = true;
+			warnstr.Append("Differing names. ");
 		}
 
 		if (animation->type % 2 == 0) // flat
 		{
+			bool wrongtype = false;
 			if (anim_lastflatnoexist)
 			{
 				warn = true;
-				wxLogMessage(string::Format(
-					"Non-existent first flat for ANIMATED number: %d. First: %s, Last: %s. %s",
-					animnum, animation->last, animation->first, !anim_lasttexturenoexist ?
-					"Consider chaing the type field to either 1 or 3 (texture)." : ""));
+				warnstr.Append("Non-existent first flat. ");
+				if(!anim_lasttexturenoexist)
+					wrongtype = true;
 			}
 			if (anim_firstflatnoexist)
 			{
 				warn = true;
-				wxLogMessage(string::Format(
-					"Non-existent last flat for ANIMATED number: %d. First: %s, Last: %s. %s",
-					animnum, animation->last, animation->first, !anim_firsttexturenoexist ?
-					"Consider chaing the type field to either 1 or 3 (texture)." : ""));
+				warnstr.Append("Non-existent last flat. ");
+				if(!anim_firsttexturenoexist)
+					wrongtype = true; 
 			}
+			if(wrongtype)
+				warnstr.Append("Consider changing the type field to either 1 or 3 (texture). ");
 		}
 		else //texture
 		{
+			bool wrongtype = false;
 			if (anim_lasttexturenoexist)
 			{
 				warn = true;
-				wxLogMessage(string::Format(
-					"Non-existent first texture for ANIMATED number: %d. First: %s, Last: %s. %s",
-					animnum, animation->last, animation->first, !anim_lastflatnoexist ?
-					"Consider chaing the type field to either 0 or 2 (flat)." : ""));
+				warnstr.Append("Non-existent first texture. ");
+				if(!anim_lastflatnoexist)
+					wrongtype = true;
 			}
 			if (anim_firsttexturenoexist)
 			{
 				warn = true;
-				wxLogMessage(string::Format(
-					"Non-existent last texture for ANIMATED number: %d. First: %s, Last: %s. %s",
-					animnum, animation->last, animation->first, !anim_firstflatnoexist ?
-					"Consider chaing the type field to either 0 or 2 (flat)." : ""));
+				warnstr.Append("Non-existent last texture. ");
+				if(!anim_firstflatnoexist)
+					wrongtype = true;
 			}
+			if(wrongtype)
+				warnstr.Append("Consider changing the type field to either 0 or 2 (flat). ");
 		}
+
+		if(warn)
+			wxLogMessage(warnstr);
+
 		animnum++;
 	}
 
