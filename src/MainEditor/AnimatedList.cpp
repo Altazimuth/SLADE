@@ -32,6 +32,9 @@
 #include "AnimatedList.h"
 #include "UI/Lists/ListView.h"
 #include "Utility/Tokenizer.h"
+#include "Graphics/CTexture/TextureXList.h"
+#include "General/ResourceManager.h"
+#include "Archive/ArchiveManager.h"
 
 /*******************************************************************
  * ANIMATEDENTRY CLASS FUNCTIONS
@@ -340,4 +343,132 @@ bool AnimatedList::convertSwanTbls(ArchiveEntry* entry, MemChunk* animdata)
 	}
 	return true;
 	// Note that we do not terminate the list here!
+}
+
+/* AnimatedList::checkAnimatedErrors
+* Check an ANIMATED lump for any potential errors,
+* and generate a dialogue containing the errors
+* (currently just prints to console)
+*******************************************************************/
+bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
+{
+	int animnum = 0;
+	const uint8_t* cursor = entry->getData(true);
+	const uint8_t* eodata = cursor + entry->getSize();
+	const animated_t* animation;
+	string conversion;
+	int lasttype = -1;
+
+	string tempstr, firststr, laststr, firstname, lastname;
+	int firstnum, lastnum;
+	bool cumulative, warn;
+	bool anim_oppositenumbering, anim_differingnames,
+	anim_firsttexturenoexist, anim_lasttexturenoexist,
+	anim_firstflatnoexist, anim_lastflatnoexist;
+
+	cumulative = !archive->getEntry("F_START");
+
+	while(cursor < eodata && *cursor != ANIM_STOP)
+	{
+		firstnum = lastnum = -1;
+			// set the warning flags to false
+		warn = false;
+		anim_oppositenumbering = anim_differingnames =
+		anim_firsttexturenoexist = anim_lasttexturenoexist = 
+		anim_firstflatnoexist = anim_lastflatnoexist = false;
+
+		// reads an entry
+		if (cursor + sizeof(animated_t) > eodata)
+		{
+			wxLogMessage("Error: ANIMATED entry is corrupt");
+			return false;
+		}
+		animation = (animated_t*)cursor;
+		cursor += sizeof(animated_t);
+
+		auto partitiontexturename = [](string texture, string &name, int &num) {
+			size_t last_alpha_index;
+			last_alpha_index = texture.find_last_not_of("0123456789");
+			name = texture.Clone();
+			name.Truncate(last_alpha_index + 1);
+			sscanf(texture.substr(last_alpha_index + 1), "%d", &num);
+		};
+		partitiontexturename(animation->first, firstname, firstnum);
+		partitiontexturename(animation->last, lastname, lastnum);
+
+		// perform the checks
+		anim_oppositenumbering = firstnum > lastnum && firstnum != -1 && lastnum != -1;
+		anim_differingnames = !firstname.IsSameAs(lastname);
+
+		if(cumulative)
+		{
+			Archive* base = theArchiveManager->baseResourceArchive();
+			anim_firstflatnoexist = !theResourceManager->getFlatEntry(animation->first, base);
+			anim_lastflatnoexist = !theResourceManager->getFlatEntry(animation->last, base);
+			anim_firsttexturenoexist = !theResourceManager->getTexture(animation->first, base);
+			anim_lasttexturenoexist = !theResourceManager->getTexture(animation->last, base);
+		}
+
+		anim_firstflatnoexist &= !theResourceManager->getFlatEntry(animation->first, archive);
+		anim_lastflatnoexist &= !theResourceManager->getFlatEntry(animation->last, archive);
+		anim_firsttexturenoexist &= !theResourceManager->getTexture(animation->first, archive);
+		anim_lasttexturenoexist &= !theResourceManager->getTexture(animation->last, archive);
+
+		// display in tabular view inverted for some reason,
+		// keep it consistent in the strings
+		if (anim_oppositenumbering)
+		{
+			wxLogMessage(string::Format(
+				"Opposite numbering for ANIMATED number: %d. First: %s, Last: %s.",
+				animnum, animation->last, animation->first));
+		}
+		if (anim_differingnames)
+		{
+			wxLogMessage(string::Format(
+				"Differing names for ANIMATED number: %d. First: %s, Last: %s.",
+					animnum, animation->last, animation->first));
+		}
+
+		if (animation->type % 2 == 0) // flat
+		{
+			if (anim_lastflatnoexist)
+			{
+				warn = true;
+				wxLogMessage(string::Format(
+					"Non-existent first flat for ANIMATED number: %d. First: %s, Last: %s. %s",
+					animnum, animation->last, animation->first, !anim_lasttexturenoexist ?
+					"Consider chaing the type field to either 1 or 3 (texture)." : ""));
+			}
+			if (anim_firstflatnoexist)
+			{
+				warn = true;
+				wxLogMessage(string::Format(
+					"Non-existent last flat for ANIMATED number: %d. First: %s, Last: %s. %s",
+					animnum, animation->last, animation->first, !anim_firsttexturenoexist ?
+					"Consider chaing the type field to either 1 or 3 (texture)." : ""));
+			}
+		}
+		else //texture
+		{
+			if (anim_lasttexturenoexist)
+			{
+				warn = true;
+				wxLogMessage(string::Format(
+					"Non-existent first texture for ANIMATED number: %d. First: %s, Last: %s. %s",
+					animnum, animation->last, animation->first, !anim_lastflatnoexist ?
+					"Consider chaing the type field to either 0 or 2 (flat)." : ""));
+			}
+			if (anim_firsttexturenoexist)
+			{
+				warn = true;
+				wxLogMessage(string::Format(
+					"Non-existent last texture for ANIMATED number: %d. First: %s, Last: %s. %s",
+					animnum, animation->last, animation->first, !anim_firstflatnoexist ?
+					"Consider chaing the type field to either 0 or 2 (flat)." : ""));
+			}
+		}
+		animnum++;
+	}
+
+	return true;
 }

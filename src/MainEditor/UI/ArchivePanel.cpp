@@ -2284,6 +2284,34 @@ bool ArchivePanel::basConvert(bool animdefs)
 	return (output != NULL);
 }
 
+/* ArchivePanel::basErrorCheck
+* Checks any selected SWITCHES or ANIMATED entries for potential
+* errors
+*******************************************************************/
+bool ArchivePanel::basErrorCheck()
+{
+	// Get the entry index of the last selected list item
+	int index = archive->entryIndex(currentEntry(), entry_list->getCurrentDir());
+
+	// If something was selected, add 1 to the index so we add the new entry after the last selected
+	if(index >= 0)
+		index++;
+
+	// Get a list of selected entries
+	vector<ArchiveEntry*> selection = entry_list->getSelectedEntries();
+
+	// Check each selected entry for possible errors
+	for(size_t a = 0; a < selection.size(); a++)
+	{
+		if(selection[a]->getType()->getFormat() == "animated")
+			AnimatedList::checkAnimatedErrors(selection[a], archive);
+		else if(selection[a]->getType()->getFormat() == "switches")
+			;//SwitchesList::checkSwitchErrors(selection[a], &animdata);
+	}
+
+	return true;
+}
+
 /* ArchivePanel::palConvert
  * Unused (converts 6-bit palette to 8-bit)
  *******************************************************************/
@@ -3067,6 +3095,8 @@ bool ArchivePanel::handleAction(string id)
 		basConvert(false);
 	else if (id == "arch_bas_convertz")
 		basConvert(true);
+	else if (id == "arch_bas_errorcheck")
+		basErrorCheck();
 	else if (id == "arch_swan_convert")
 		swanConvert();
 	else if (id == "arch_gfx_convert")
@@ -3464,6 +3494,7 @@ void ArchivePanel::onEntryListRightClick(wxListEvent& e)
 	{
 		theApp->getAction("arch_bas_convertb")->addToMenu(&context, true);
 		theApp->getAction("arch_bas_convertz")->addToMenu(&context, true);
+      theApp->getAction("arch_bas_errorcheck")->addToMenu(&context, true);
 	}
 	if (swan_selected)
 	{

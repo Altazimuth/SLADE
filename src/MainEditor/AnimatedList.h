@@ -54,6 +54,7 @@ public:
 	// Static functions
 	static bool convertAnimated(ArchiveEntry* entry, MemChunk* animdata, bool animdefs);
 	static bool convertSwanTbls(ArchiveEntry* entry, MemChunk* animdata);
+	static bool checkAnimatedErrors(ArchiveEntry* entry, Archive* archive);
 };
 
 #endif //ANIMATEDLIST_H

@@ -108,6 +108,7 @@ public:
 	bool	gfxExportPNG();
 	bool	swanConvert();
 	bool	basConvert(bool animdefs = false);
+	bool  basErrorCheck();
 	bool	palConvert();
 	bool	reloadCurrentPanel();
 	bool	wavDSndConvert();

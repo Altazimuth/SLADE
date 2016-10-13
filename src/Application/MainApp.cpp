@@ -702,7 +702,8 @@ void MainApp::initActions()
 	new SAction("arch_entry_setup_external", "Setup External Editors", "settings", "Open the preferences dialog to set up external editors");
 	new SAction("arch_bas_convertb", "Convert to SWANTBLS", "", "Convert any selected SWITCHES and ANIMATED entries to a single SWANTBLS entry");
 	new SAction("arch_bas_convertz", "Convert to ANIMDEFS", "", "Convert any selected SWITCHES and ANIMATED entries to a single ANIMDEFS entry");
-	new SAction("arch_swan_convert", "Compile to SWITCHES and ANIMATED", "", "Convert SWANTBLS entries into SWITCHES and ANIMATED entries");
+   new SAction("arch_bas_convertz", "Convert to ANIMDEFS", "", "Convert any selected SWITCHES and ANIMATED entries to a single ANIMDEFS entry");
+   new SAction("arch_bas_errorcheck", "Check for errors", "", "Convert SWANTBLS entries into SWITCHES and ANIMATED entries");
 	new SAction("arch_texturex_convertzd", "Convert to TEXTURES", "", "Convert any selected TEXTUREx entries to ZDoom TEXTURES format");
 	new SAction("arch_texturex_finderrors", "Find Texture Errors", "", "Log to the console any error detected in the TEXTUREx entries");
 	new SAction("arch_view_text", "View as Text", "text", "Open the selected entry in the text editor, regardless of type");
