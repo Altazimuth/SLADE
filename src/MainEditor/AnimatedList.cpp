@@ -35,6 +35,7 @@
 #include "Graphics/CTexture/TextureXList.h"
 #include "General/ResourceManager.h"
 #include "Archive/ArchiveManager.h"
+#include "Dialogs/ExtMessageDialog.h"
 
 /*******************************************************************
  * ANIMATEDENTRY CLASS FUNCTIONS
@@ -352,13 +353,12 @@ bool AnimatedList::convertSwanTbls(ArchiveEntry* entry, MemChunk* animdata)
 *******************************************************************/
 bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 {
-	int animnum = 0;
+	int animnum = 0, numwarnings = 0;
 	const uint8_t* cursor = entry->getData(true);
 	const uint8_t* eodata = cursor + entry->getSize();
 	const animated_t* animation;
-	string conversion;
-	int lasttype = -1;
 
+	string output = "";
 	string tempstr, firststr, laststr, firstname, lastname, warnstr;
 	int firstnum, lastnum;
 	bool cumulative, warn;
@@ -385,7 +385,7 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 		}
 		animation = (animated_t*)cursor;
 		cursor += sizeof(animated_t);
-		warnstr = string::Format("ANIMATED number: %d. First: %s, Last: %s. ",
+		warnstr = string::Format("ANIMATED number: %d. First: %s, Last: %s.\n",
 			animnum, animation->last, animation->first);
 
 		auto partitiontexturename = [](string texture, string &name, int &num) {
@@ -421,12 +421,12 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 		if (anim_oppositenumbering)
 		{
 			warn = true;
-			warnstr.Append("Opposite numbering. ");
+			warnstr.Append("Opposite numbering.\n");
 		}
 		if (anim_differingnames)
 		{
 			warn = true;
-			warnstr.Append("Differing names. ");
+			warnstr.Append("Differing names.\n");
 		}
 
 		if (animation->type % 2 == 0) // flat
@@ -435,19 +435,19 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 			if (anim_lastflatnoexist)
 			{
 				warn = true;
-				warnstr.Append("Non-existent first flat. ");
+				warnstr.Append("Non-existent first flat.\n");
 				if(!anim_lasttexturenoexist)
 					wrongtype = true;
 			}
 			if (anim_firstflatnoexist)
 			{
 				warn = true;
-				warnstr.Append("Non-existent last flat. ");
+				warnstr.Append("Non-existent last flat.\n");
 				if(!anim_firsttexturenoexist)
 					wrongtype = true; 
 			}
 			if(wrongtype)
-				warnstr.Append("Consider changing the type field to either 1 or 3 (texture). ");
+				warnstr.Append("Consider changing the type field to either 1 or 3 (texture).\n");
 		}
 		else //texture
 		{
@@ -455,26 +455,34 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 			if (anim_lasttexturenoexist)
 			{
 				warn = true;
-				warnstr.Append("Non-existent first texture. ");
+				warnstr.Append("Non-existent first texture.\n");
 				if(!anim_lastflatnoexist)
 					wrongtype = true;
 			}
 			if (anim_firsttexturenoexist)
 			{
 				warn = true;
-				warnstr.Append("Non-existent last texture. ");
+				warnstr.Append("Non-existent last texture.\n");
 				if(!anim_firstflatnoexist)
 					wrongtype = true;
 			}
 			if(wrongtype)
-				warnstr.Append("Consider changing the type field to either 0 or 2 (flat). ");
+				warnstr.Append("Consider changing the type field to either 0 or 2 (flat).\n");
 		}
 
 		if(warn)
-			wxLogMessage(warnstr);
+		{
+			output.Append(warnstr + '\n');
+			numwarnings++;
+		}
 
 		animnum++;
 	}
+
+	ExtMessageDialog dlg(NULL, "Problems Found");
+	dlg.setMessage(string::Format("%d entries have warnings:", numwarnings));
+	dlg.setExt(output);
+	dlg.ShowModal();
 
 	return true;
 }
