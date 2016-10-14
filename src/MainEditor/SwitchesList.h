@@ -47,6 +47,7 @@ public:
 	// Static functions
 	static bool convertSwitches(ArchiveEntry* entry, MemChunk* animdata, bool animdefs);
 	static bool convertSwanTbls(ArchiveEntry* entry, MemChunk* animdata);
+	static bool checkSwitchesErrors(ArchiveEntry* entry, Archive* archive);
 };
 
 #endif //SWITCHESLIST_H

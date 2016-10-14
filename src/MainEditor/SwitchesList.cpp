@@ -31,6 +31,10 @@
 #include "SwitchesList.h"
 #include "UI/Lists/ListView.h"
 #include "Utility/Tokenizer.h"
+#include "Dialogs/ExtMessageDialog.h"
+#include "General/ResourceManager.h"
+#include "Archive/ArchiveManager.h"
+#include "MapEditor/GameConfiguration/GameConfiguration.h"
 
 /*******************************************************************
  * SWITCHESENTRY CLASS FUNCTIONS
@@ -322,4 +326,83 @@ bool SwitchesList::convertSwanTbls(ArchiveEntry* entry, MemChunk* animdata)
 	}
 	return true;
 	// Note that we do not terminate the list here!
+}
+
+bool SwitchesList::checkSwitchesErrors(ArchiveEntry* entry, Archive* archive)
+{
+	Archive* base = theArchiveManager->baseResourceArchive();
+	const uint8_t* cursor = entry->getData(true);
+	const uint8_t* eodata = cursor + entry->getSize();
+	const switches_t* switches;
+
+	int switchnum = 0, numwarnings = 0;
+	bool cumulativeflats, warn;
+	bool sw_offtexturenoexist, sw_ontexturenoexist, sw_offflatnoexist, sw_onflatnoexist;
+	string output = "", warnstr;
+
+	cumulativeflats = !archive->getEntry("F_START");
+
+	while (cursor < eodata && *cursor != SWCH_STOP)
+	{
+		warn = false;
+		sw_offtexturenoexist = sw_ontexturenoexist = sw_offflatnoexist = sw_onflatnoexist = true;
+		// reads an entry
+		if (cursor + sizeof(switches_t) > eodata)
+		{
+			wxLogMessage("Error: SWITCHES entry is corrupt");
+			return false;
+		}
+		switches = (switches_t*)cursor;
+		cursor += sizeof(switches_t);
+		warnstr = string::Format("ANIMATED number: %d. On: %s, Off: %s.\n",
+			switchnum, switches->off, switches->on);
+
+
+		if (cumulativeflats)
+		{
+			sw_offflatnoexist = !theResourceManager->getFlatEntry(switches->off, base);
+			sw_onflatnoexist = !theResourceManager->getFlatEntry(switches->on, base);
+		}
+		// afaik only ZDooms have cumulative loading
+		if (theGameConfiguration->currentPort() == "zdoom")
+		{
+			sw_offtexturenoexist = !theResourceManager->getFlatEntry(switches->off, base);
+			sw_ontexturenoexist = !theResourceManager->getFlatEntry(switches->on, base);			
+		}
+
+		sw_offflatnoexist &= !theResourceManager->getFlatEntry(switches->off, archive);
+		sw_onflatnoexist &= !theResourceManager->getFlatEntry(switches->on, archive);
+		sw_offtexturenoexist &= !theResourceManager->getTexture(switches->off, archive);
+		sw_ontexturenoexist &= !theResourceManager->getTexture(switches->on, archive);
+
+		if (sw_ontexturenoexist)
+		{
+			warn = true;
+			warnstr.Append("Non-existent off texture.\n");
+			if (!sw_onflatnoexist)
+				warnstr.Append("A flat under the same name does exist.\n");
+		}
+		if (sw_offtexturenoexist)
+		{
+			warn = true;
+			warnstr.Append("Non-existent on texture.\n");
+			if (!sw_offflatnoexist)
+				warnstr.Append("A flat under the same name does exist.\n");
+		}
+
+		if (warn)
+		{
+			output.Append(warnstr + '\n');
+			numwarnings++;
+		}
+		switchnum++;
+	}
+
+
+	ExtMessageDialog dlg(NULL, "Problems Found");
+	dlg.setMessage(string::Format("%d entries have warnings:", numwarnings));
+	dlg.setExt(output);
+	dlg.ShowModal();
+
+	return true;
 }

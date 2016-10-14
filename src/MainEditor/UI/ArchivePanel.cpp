@@ -2306,7 +2306,7 @@ bool ArchivePanel::basErrorCheck()
 		if(selection[a]->getType()->getFormat() == "animated")
 			AnimatedList::checkAnimatedErrors(selection[a], archive);
 		else if(selection[a]->getType()->getFormat() == "switches")
-			;//SwitchesList::checkSwitchErrors(selection[a], &animdata);
+			SwitchesList::checkSwitchesErrors(selection[a], archive);
 	}
 
 	return true;

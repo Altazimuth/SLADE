@@ -36,6 +36,7 @@
 #include "General/ResourceManager.h"
 #include "Archive/ArchiveManager.h"
 #include "Dialogs/ExtMessageDialog.h"
+#include "MapEditor/GameConfiguration/GameConfiguration.h"
 
 /*******************************************************************
  * ANIMATEDENTRY CLASS FUNCTIONS
@@ -353,20 +354,21 @@ bool AnimatedList::convertSwanTbls(ArchiveEntry* entry, MemChunk* animdata)
 *******************************************************************/
 bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 {
-	int animnum = 0, numwarnings = 0;
+	Archive* base = theArchiveManager->baseResourceArchive();
 	const uint8_t* cursor = entry->getData(true);
 	const uint8_t* eodata = cursor + entry->getSize();
 	const animated_t* animation;
 
 	string output = "";
 	string tempstr, firststr, laststr, firstname, lastname, warnstr;
+	int animnum = 0, numwarnings = 0;
 	int firstnum, lastnum;
-	bool cumulative, warn;
+	bool cumulativeflats, warn;
 	bool anim_oppositenumbering, anim_differingnames,
 	anim_firsttexturenoexist, anim_lasttexturenoexist,
 	anim_firstflatnoexist, anim_lastflatnoexist;
 
-	cumulative = !archive->getEntry("F_START");
+	cumulativeflats = !archive->getEntry("F_START");
 
 	while (cursor < eodata && *cursor != ANIM_STOP)
 	{
@@ -375,7 +377,7 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 		warn = false;
 		anim_oppositenumbering = anim_differingnames =
 		anim_firsttexturenoexist = anim_lasttexturenoexist = 
-		anim_firstflatnoexist = anim_lastflatnoexist = false;
+		anim_firstflatnoexist = anim_lastflatnoexist = true;
 
 		// reads an entry
 		if (cursor + sizeof(animated_t) > eodata)
@@ -402,11 +404,14 @@ bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 		anim_oppositenumbering = firstnum > lastnum && firstnum != -1 && lastnum != -1;
 		anim_differingnames = !firstname.IsSameAs(lastname);
 
-		if (cumulative)
-		{
-			Archive* base = theArchiveManager->baseResourceArchive();
+		if (cumulativeflats)
+		{			
 			anim_firstflatnoexist = !theResourceManager->getFlatEntry(animation->first, base);
 			anim_lastflatnoexist = !theResourceManager->getFlatEntry(animation->last, base);
+		}
+		// afaik only ZDooms have cumulative loading
+		if (theGameConfiguration->currentPort() == "zdoom")
+		{
 			anim_firsttexturenoexist = !theResourceManager->getTexture(animation->first, base);
 			anim_lasttexturenoexist = !theResourceManager->getTexture(animation->last, base);
 		}
