@@ -328,6 +328,10 @@ bool SwitchesList::convertSwanTbls(ArchiveEntry* entry, MemChunk* animdata)
 	// Note that we do not terminate the list here!
 }
 
+/* SwitchesList::checkSwitchesErrors
+* Checks a SWITCHES lump for any potential errors,
+* and generate a dialogue containing the errors
+*******************************************************************/
 bool SwitchesList::checkSwitchesErrors(ArchiveEntry* entry, Archive* archive)
 {
 	Archive* base = theArchiveManager->baseResourceArchive();

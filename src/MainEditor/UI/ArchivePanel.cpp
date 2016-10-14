@@ -1317,7 +1317,7 @@ bool ArchivePanel::sort()
 	initNamespaceVector(nspaces, dir->getArchive()->hasFlatHack());
 	vector<Archive::mapdesc_t> maps = dir->getArchive()->detectMaps();
 
-	string ns = dir->getArchive()->detectNamespace(entry_list->getEntry(selection[0]));
+	string ns = dir->getArchive()->detectNamespace(dir->getEntry(selection[0]));
 	size_t nsn = 0, lnsn = 0;
 
 	// Fill a map with <entry name, entry index> pairs
@@ -1327,12 +1327,7 @@ bool ArchivePanel::sort()
 		bool ns_changed = false;
 		int mapindex = isInMap(selection[i], maps);
 		string mapname;
-		ArchiveEntry * entry = entry_list->getEntry(selection[i]);
-
-		// Ignore subdirectories
-		if (entry->getType() == EntryType::folderType())
-			continue;
-
+		ArchiveEntry * entry = dir->getEntry(selection[i]);
 		// If this is a map entry, deal with it
 		if (maps.size() && mapindex > -1)
 		{
@@ -1434,12 +1429,7 @@ bool ArchivePanel::sort()
 	std::map<string, size_t>::iterator itr = emap.begin();
 	for (size_t i = start; i < stop; ++i, itr++)
 	{
-		ArchiveEntry * entry = entry_list->getEntry(i);
-
-		// Ignore subdirectories
-		if (entry->getType() == EntryType::folderType())
-			continue;
-
+		ArchiveEntry * entry = dir->getEntry(i);
 		// If the entry isn't in its sorted place already
 		if (i != (size_t)itr->second)
 		{
@@ -1584,7 +1574,7 @@ bool ArchivePanel::importEntry()
 						ok = false;
 				}
 				// Warn if the offsets couldn't be written
-				if (ok && si.getFormat() && !si.getFormat()->writeOffset(si, selection[a], offset))
+				if (ok && !si.getFormat()->writeOffset(si, selection[a], offset))
 					wxLogMessage("Old offset information [%d, %d] couldn't be "
 					             "preserved in the new image format for image %s.",
 					             offset.x, offset.y, selection[a]->getName());
@@ -2285,31 +2275,30 @@ bool ArchivePanel::basConvert(bool animdefs)
 }
 
 /* ArchivePanel::basErrorCheck
-* Checks any selected SWITCHES or ANIMATED entries for potential
-* errors
-*******************************************************************/
+ * Checks any selected SWITCHES or ANIMATED entries for potential
+ * errors
+ *******************************************************************/
 bool ArchivePanel::basErrorCheck()
 {
 	// Get the entry index of the last selected list item
 	int index = archive->entryIndex(currentEntry(), entry_list->getCurrentDir());
-
 	// If something was selected, add 1 to the index so we add the new entry after the last selected
-	if(index >= 0)
-		index++;
+	if (index >= 0)
+	 index++;
 
 	// Get a list of selected entries
 	vector<ArchiveEntry*> selection = entry_list->getSelectedEntries();
 
 	// Check each selected entry for possible errors
-	for(size_t a = 0; a < selection.size(); a++)
+	for (size_t a = 0; a < selection.size(); a++)
 	{
-		if(selection[a]->getType()->getFormat() == "animated")
-			AnimatedList::checkAnimatedErrors(selection[a], archive);
-		else if(selection[a]->getType()->getFormat() == "switches")
-			SwitchesList::checkSwitchesErrors(selection[a], archive);
+	if (selection[a]->getType()->getFormat() == "animated")
+		AnimatedList::checkAnimatedErrors(selection[a], archive);
+	else if (selection[a]->getType()->getFormat() == "switches")
+		 SwitchesList::checkSwitchesErrors(selection[a], archive);
 	}
-
-	return true;
+	
+		return true;
 }
 
 /* ArchivePanel::palConvert
@@ -3494,7 +3483,7 @@ void ArchivePanel::onEntryListRightClick(wxListEvent& e)
 	{
 		theApp->getAction("arch_bas_convertb")->addToMenu(&context, true);
 		theApp->getAction("arch_bas_convertz")->addToMenu(&context, true);
-      theApp->getAction("arch_bas_errorcheck")->addToMenu(&context, true);
+		theApp->getAction("arch_bas_errorcheck")->addToMenu(&context, true);
 	}
 	if (swan_selected)
 	{

@@ -348,9 +348,8 @@ bool AnimatedList::convertSwanTbls(ArchiveEntry* entry, MemChunk* animdata)
 }
 
 /* AnimatedList::checkAnimatedErrors
-* Check an ANIMATED lump for any potential errors,
+* Checks an ANIMATED lump for any potential errors,
 * and generate a dialogue containing the errors
-* (currently just prints to console)
 *******************************************************************/
 bool AnimatedList::checkAnimatedErrors(ArchiveEntry* entry, Archive* archive)
 {
