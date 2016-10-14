@@ -555,6 +555,7 @@ bool MapEditorWindow::openMap(Archive::mapdesc_t map)
 		mdesc_current = map;
 
 		// Read DECORATE definitions if any
+		theGameConfiguration->clearDecorateDefs();
 		theGameConfiguration->parseDecorateDefs(theArchiveManager->baseResourceArchive());
 		for (int i = 0; i < theArchiveManager->numArchives(); ++i)
 			theGameConfiguration->parseDecorateDefs(theArchiveManager->getArchive(i));
@@ -936,6 +937,9 @@ void MapEditorWindow::closeMap()
  *******************************************************************/
 void MapEditorWindow::forceRefresh(bool renderer)
 {
+	if (!IsShown())
+		return;
+
 	if (renderer) map_canvas->forceRefreshRenderer();
 	map_canvas->Refresh();
 }
