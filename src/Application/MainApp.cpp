@@ -721,7 +721,8 @@ void MainApp::initActions()
 	new SAction("arch_audio_convertmus", "Convert MUS to MIDI", "convert", "Convert any selected MUS format entries to MIDI format");
 	new SAction("arch_scripts_compileacs", "Compile ACS", "compile", "Compile any selected text entries to ACS bytecode");
 	new SAction("arch_scripts_compilehacs", "Compile ACS (Hexen bytecode)", "compile2", "Compile any selected text entries to Hexen-compatible ACS bytecode");
-	new SAction("arch_map_opendb2", "Open Map in Doom Builder 2", "", "Open the selected map in Doom Builder 2");
+   new SAction("arch_scripts_compilec", "Compile C", "compile3", "Compile any selected C text entries to ACS bytecode");
+   new SAction("arch_map_opendb2", "Open Map in Doom Builder 2", "", "Open the selected map in Doom Builder 2");
 	new SAction("arch_run", "Run Archive", "run", "Run the current archive", "Ctrl+Shift+R");
 
 	// GfxEntryPanel

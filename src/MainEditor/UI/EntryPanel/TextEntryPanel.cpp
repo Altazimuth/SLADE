@@ -90,7 +90,7 @@ TextEntryPanel::TextEntryPanel(wxWindow* parent)
 	text_area->Bind(wxEVT_STC_UPDATEUI, &TextEntryPanel::onUpdateUI, this);
 
 	// Custom toolbar
-	custom_toolbar_actions = "arch_scripts_compileacs;arch_scripts_compilehacs";
+	custom_toolbar_actions = "arch_scripts_compileacs;arch_scripts_compilehacs;arch_scripts_compilec";
 	toolbar->addActionGroup("Scripts", wxSplit(custom_toolbar_actions, ';'));
 
 
@@ -110,6 +110,7 @@ TextEntryPanel::TextEntryPanel(wxWindow* parent)
 	menu_custom->AppendSubMenu(menu_scripts, "Compile");
 	theApp->getAction("arch_scripts_compileacs")->addToMenu(menu_scripts);
 	theApp->getAction("arch_scripts_compilehacs")->addToMenu(menu_scripts);
+	theApp->getAction("arch_scripts_compilec")->addToMenu(menu_scripts);
 
 	menu_custom->AppendSeparator();
 
@@ -316,19 +317,19 @@ bool TextEntryPanel::redo()
 bool TextEntryPanel::handleAction(string id)
 {
 	// Jump To Line
-	if (id == "ptxt_jump_to_line")
+	if(id == "ptxt_jump_to_line")
 		text_area->jumpToLine();
 
 	// Find+Replace
-	else if (id == "ptxt_find_replace")
+	else if(id == "ptxt_find_replace")
 		text_area->showFindReplacePanel();
 
 	// Word Wrapping toggle
-	else if (id == "ptxt_wrap")
+	else if(id == "ptxt_wrap")
 	{
 		SAction* action = theApp->getAction("ptxt_wrap");
 		bool m = isModified();
-		if (action->isToggled())
+		if(action->isToggled())
 			text_area->SetWrapMode(wxSTC_WRAP_WORD);
 		else
 			text_area->SetWrapMode(wxSTC_WRAP_NONE);
@@ -336,19 +337,22 @@ bool TextEntryPanel::handleAction(string id)
 	}
 
 	// Fold All
-	else if (id == "ptxt_fold_foldall")
+	else if(id == "ptxt_fold_foldall")
 		text_area->foldAll(true);
 
 	// Unfold All
-	else if (id == "ptxt_fold_unfoldall")
+	else if(id == "ptxt_fold_unfoldall")
 		text_area->foldAll(false);
 
 	// compileACS
-	else if (id == "arch_scripts_compileacs")
+	else if(id == "arch_scripts_compileacs")
 		EntryOperations::compileACS(entry, false, NULL, NULL);
 
-	else if (id == "arch_scripts_compilehacs")
+	else if(id == "arch_scripts_compilehacs")
 		EntryOperations::compileACS(entry, true, NULL, NULL);
+
+	else if(id == "arch_scripts_compilec")
+		EntryOperations::compileC(entry, NULL, NULL);
 
 	// Not handled
 	else

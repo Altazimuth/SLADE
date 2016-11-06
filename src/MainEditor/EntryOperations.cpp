@@ -49,6 +49,8 @@
  *******************************************************************/
 CVAR(String, path_acc, "", CVAR_SAVE);
 CVAR(String, path_acc_libs, "", CVAR_SAVE);
+CVAR(String, path_gdcc_cc, "", CVAR_SAVE);
+CVAR(String, path_gdcc_cc_libs, "", CVAR_SAVE);
 CVAR(String, path_pngout, "", CVAR_SAVE);
 CVAR(String, path_pngcrush, "", CVAR_SAVE);
 CVAR(String, path_deflopt, "", CVAR_SAVE);
@@ -1364,6 +1366,195 @@ bool EntryOperations::compileACS(ArchiveEntry* entry, bool hexen, ArchiveEntry* 
 	}
 
 	return true;
+}
+
+/* EntryOperations::compileACS
+* Attempts to compile [entry] as an ACS script. If the entry is
+* named SCRIPTS, the compiled data is imported to the BEHAVIOR
+* entry previous to it, otherwise it is imported to a same-name
+* compiled library entry in the acs namespace
+*******************************************************************/
+bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFrame* parent)
+{
+	// Check entry was given
+	if(!entry)
+		return false;
+
+	// Check entry has a parent (this is useless otherwise)
+	if(!target && !entry->getParent())
+		return false;
+
+	// Check entry is text
+	if(!EntryDataFormat::getFormat("text")->isThisFormat(entry->getMCData()))
+	{
+		wxMessageBox("Error: Entry does not appear to be text", "Error", wxOK | wxCENTRE | wxICON_ERROR);
+		return false;
+	}
+
+	/*// Check if the GDCC-CC path is set up
+	string gdcc_ccpath = path_gdcc_cc;
+	if(gdcc_ccpath.IsEmpty() || !wxFileExists(gdcc_ccpath))
+	{
+		wxMessageBox("Error: GDCC-CC path not defined, please configure in SLADE preferences", "Error", wxOK | wxCENTRE | wxICON_ERROR);
+		PreferencesDialog::openPreferences(parent, "GDCC-CC");
+		return false;
+	}
+	
+	// Setup some path strings
+	string srcfile = appPath(entry->getName(true) + ".c", DIR_TEMP);
+	string ofile = appPath(entry->getName(true) + ".o", DIR_TEMP);
+	wxArrayString include_paths = wxSplit(path_acc_libs, ';');
+
+	// Setup command options
+	string opt;
+	//if(hexen)
+	//	opt += " -h";
+	if(!include_paths.IsEmpty())
+	{
+		for(unsigned a = 0; a < include_paths.size(); a++)
+			opt += S_FMT(" -i \"%s\"", include_paths[a]);
+	}
+
+	// Find/export any resource libraries
+	Archive::search_options_t sopt;
+	sopt.match_type = EntryType::getType("acs");
+	sopt.search_subdirs = true;
+	vector<ArchiveEntry*> entries = theArchiveManager->findAllResourceEntries(sopt);
+	wxArrayString lib_paths;
+	for(unsigned a = 0; a < entries.size(); a++)
+	{
+		// Ignore SCRIPTS
+		if(S_CMPNOCASE(entries[a]->getName(true), "SCRIPTS"))
+			continue;
+
+		// Ignore entries from other archives
+		if(entry->getParent() &&
+			(entry->getParent()->getFilename(true) != entries[a]->getParent()->getFilename(true)))
+			continue;
+
+		string path = appPath(entries[a]->getName(true) + ".acs", DIR_TEMP);
+		entries[a]->exportFile(path);
+		lib_paths.Add(path);
+		LOG_MESSAGE(2, "Exporting ACS library %s", entries[a]->getName());
+	}
+
+	// Export script to file
+	entry->exportFile(srcfile);
+
+	// Execute acc
+	string command = path_acc + " " + opt + " \"" + srcfile + "\" \"" + ofile + "\"";
+	wxArrayString output;
+	wxArrayString errout;
+	theApp->SetTopWindow(parent);
+	wxExecute(command, output, errout, wxEXEC_SYNC);
+	theApp->SetTopWindow(theMainWindow);
+
+	// Log output
+	theConsole->logMessage("ACS compiler output:");
+	string output_log;
+	if(!output.IsEmpty())
+	{
+		const char *title1 = "=== Log: ===\n";
+		theConsole->logMessage(title1);
+		output_log += title1;
+		for(unsigned a = 0; a < output.size(); a++)
+		{
+			theConsole->logMessage(output[a]);
+			output_log += output[a];
+		}
+	}
+
+	if(!errout.IsEmpty())
+	{
+		const char *title2 = "\n=== Error log: ===\n";
+		theConsole->logMessage(title2);
+		output_log += title2;
+		for(unsigned a = 0; a < errout.size(); a++)
+		{
+			theConsole->logMessage(errout[a]);
+			output_log += errout[a];
+		}
+	}
+
+	// Delete source file
+	wxRemoveFile(srcfile);
+
+	// Delete library files
+	for(unsigned a = 0; a < lib_paths.size(); a++)
+		wxRemoveFile(lib_paths[a]);
+
+	// Check it compiled successfully
+	if(wxFileExists(ofile))
+	{
+		// If no target entry was given, find one
+		if(!target)
+		{
+			// Check if the script is a map script (BEHAVIOR)
+			if(S_CMPNOCASE(entry->getName(), "SCRIPTS"))
+			{
+				// Get entry before SCRIPTS
+				ArchiveEntry* prev = entry->prevEntry();
+
+				// Create a new entry there if it isn't BEHAVIOR
+				if(!prev || !(S_CMPNOCASE(prev->getName(), "BEHAVIOR")))
+					prev = entry->getParent()->addNewEntry("BEHAVIOR", entry->getParent()->entryIndex(entry));
+
+				// Import compiled script
+				prev->importFile(ofile);
+			}
+			else
+			{
+				// Otherwise, treat it as a library
+
+				// See if the compiled library already exists as an entry
+				Archive::search_options_t opt;
+				opt.match_namespace = "acs";
+				opt.match_name = entry->getName(true);
+				if(entry->getParent()->getDesc().names_extensions)
+				{
+					opt.match_name += ".o";
+					opt.ignore_ext = false;
+				}
+				ArchiveEntry* lib = entry->getParent()->findLast(opt);
+
+				// If it doesn't exist, create it
+				if(!lib)
+					lib = entry->getParent()->addEntry(new ArchiveEntry(entry->getName(true) + ".o"), "acs");
+
+				// Import compiled script
+				lib->importFile(ofile);
+			}
+		}
+		else
+			target->importFile(ofile);
+
+		// Delete compiled script file
+		wxRemoveFile(ofile);
+	}
+	else
+	{
+		string errors;
+		if(wxFileExists(appPath("acs.err", DIR_TEMP)))
+		{
+			// Read acs.err to string
+			wxFile file(appPath("acs.err", DIR_TEMP));
+			char* buf = new char[file.Length()];
+			file.Read(buf, file.Length());
+			errors = wxString::From8BitData(buf, file.Length());
+			delete[] buf;
+		}
+		else
+			errors = output_log;
+
+		ExtMessageDialog dlg(NULL, "Error Compiling");
+		dlg.setMessage("The following errors were encountered while compiling, please fix them and recompile:");
+		dlg.setExt(errors);
+		dlg.ShowModal();
+
+		return false;
+	}
+
+	return true;*/
 }
 
 /* EntryOperations::exportAsPNG

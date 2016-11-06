@@ -35,6 +35,7 @@
 #include "Archive/ArchiveManager.h"
 #include "AudioPrefsPanel.h"
 #include "BaseResourceArchivesPanel.h"
+#include "CCPrefsPanel.h"
 #include "ColorimetryPrefsPanel.h"
 #include "ColourPrefsPanel.h"
 #include "EditingPrefsPanel.h"
@@ -104,6 +105,7 @@ PreferencesDialog::PreferencesDialog(wxWindow* parent) : SDialog(parent, "SLADE 
 	panel = new AudioPrefsPanel(tree_prefs);		tree_prefs->AddPage(panel, "Audio"); prefs_pages.push_back(panel);
 	tree_prefs->AddPage(new wxPanel(tree_prefs, -1), "Scripting");
 	panel = new ACSPrefsPanel(tree_prefs);			tree_prefs->AddSubPage(panel, "ACS"); prefs_pages.push_back(panel);
+	panel = new CCPrefsPanel(tree_prefs);			tree_prefs->AddSubPage(panel, "GDCC-CC"); prefs_pages.push_back(panel);
 	panel = new MapEditorPrefsPanel(tree_prefs);	tree_prefs->AddPage(panel, "Map Editor"); prefs_pages.push_back(panel);
 	panel = new MapDisplayPrefsPanel(tree_prefs);	tree_prefs->AddSubPage(panel, "Display"); prefs_pages.push_back(panel);
 	panel = new Map3DPrefsPanel(tree_prefs);		tree_prefs->AddSubPage(panel, "3D Mode"); prefs_pages.push_back(panel);

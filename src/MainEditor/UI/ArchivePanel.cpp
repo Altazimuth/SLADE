@@ -3556,6 +3556,7 @@ void ArchivePanel::onEntryListRightClick(wxListEvent& e)
 		}
 		theApp->getAction("arch_scripts_compileacs")->addToMenu(scripts, true);
 		theApp->getAction("arch_scripts_compilehacs")->addToMenu(scripts, true);
+		theApp->getAction("arch_scripts_compilec")->addToMenu(scripts, true);
 	}
 
 	// Add map related menu items if needed

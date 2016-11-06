@@ -1371,6 +1371,9 @@
     <ClCompile Include="_CreatePCH.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Dialogs\Preferences\CCPrefsPanel.cpp">
+      <Filter>Dialogs\Preferences</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -1624,9 +1627,6 @@
       <Filter>Dialogs\Preferences</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\Dialogs\Preferences\ColorimetryPrefsPanel.h">
-      <Filter>Dialogs\Preferences</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Dialogs\Preferences\ColourPrefsPanel.h">
       <Filter>Dialogs\Preferences</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\Dialogs\Preferences\EditingPrefsPanel.h">
@@ -2377,6 +2377,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\External\mus2mid\mus2mid.h">
       <Filter>External\Mus2Mid</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Dialogs\Preferences\CPrefsPanel.h">
+      <Filter>Dialogs\Preferences</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Dialogs\Preferences\CCPrefsPanel.h">
+      <Filter>Dialogs\Preferences</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

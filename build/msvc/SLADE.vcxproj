@@ -1346,6 +1346,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release - FTGL|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\src\Dialogs\Preferences\CCPrefsPanel.cpp" />
     <ClCompile Include="_CreatePCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -1408,7 +1409,7 @@
     <ClInclude Include="..\..\src\Dialogs\Preferences\AudioPrefsPanel.h" />
     <ClInclude Include="..\..\src\Dialogs\Preferences\BaseResourceArchivesPanel.h" />
     <ClInclude Include="..\..\src\Dialogs\Preferences\ColorimetryPrefsPanel.h" />
-    <ClInclude Include="..\..\src\Dialogs\Preferences\ColourPrefsPanel.h" />
+    <ClInclude Include="..\..\src\Dialogs\Preferences\CCPrefsPanel.h" />
     <ClInclude Include="..\..\src\Dialogs\Preferences\EditingPrefsPanel.h" />
     <ClInclude Include="..\..\src\Dialogs\Preferences\GeneralPrefsPanel.h" />
     <ClInclude Include="..\..\src\Dialogs\Preferences\GraphicsPrefsPanel.h" />
@@ -1672,6 +1673,7 @@
     <ClInclude Include="..\..\src\Utility\Structs.h" />
     <ClInclude Include="..\..\src\Utility\Tokenizer.h" />
     <ClInclude Include="..\..\src\Utility\Tree.h" />
+    <ClInclude Include="..\..\src\Dialogs\Preferences\CPrefsPanel.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="..\..\src\External\zlib\crc32.h" />
     <ClInclude Include="..\..\src\External\zlib\deflate.h" />
