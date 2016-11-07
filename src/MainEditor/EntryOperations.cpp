@@ -42,6 +42,7 @@
 #include "Dialogs/Preferences/PreferencesDialog.h"
 #include "Dialogs/ModifyOffsetsDialog.h"
 #include "UI/PaletteChooser.h"
+#include "MapEditor/GameConfiguration/GameConfiguration.h"
 
 
 /*******************************************************************
@@ -1392,7 +1393,7 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 		return false;
 	}
 
-	/*// Check if the GDCC-CC path is set up
+	// Check if the GDCC-CC path is set up
 	string gdcc_ccpath = path_gdcc_cc;
 	if(gdcc_ccpath.IsEmpty() || !wxFileExists(gdcc_ccpath))
 	{
@@ -1403,14 +1404,25 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 	
 	// Setup some path strings
 	string srcfile = appPath(entry->getName(true) + ".c", DIR_TEMP);
+	string irfile = appPath(entry->getName(true) + ".ir", DIR_TEMP);
 	string ofile = appPath(entry->getName(true) + ".o", DIR_TEMP);
 	wxArrayString library_paths = wxSplit(path_gdcc_cc_libs, ';');
 	wxArrayString include_paths = wxSplit(path_gdcc_cc_incs, ';');
 
 	// Setup command options
-	string opt;
-	//if(hexen)
-	//	opt += " -h";
+	string current_port = theGameConfiguration->currentPort();
+	string opt = "--bc-target=ZDoom";
+	if (current_port.Contains("zdoom") || current_port == "eternity")
+		opt = "--bc-target=ZDoom";
+	else if (current_port == "zandronum")
+		opt = "--bc-target=Zandronum";
+	// TODO: Add MageCraft
+
+	if(!library_paths.IsEmpty())
+	{
+		for(unsigned a = 0; a < library_paths.size(); a++)
+			opt += S_FMT(" -l \"%s\"", library_paths[a]);
+	}
 	if(!include_paths.IsEmpty())
 	{
 		for(unsigned a = 0; a < include_paths.size(); a++)
@@ -1422,29 +1434,12 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 	sopt.match_type = EntryType::getType("sourcecode_c");
 	sopt.search_subdirs = true;
 	vector<ArchiveEntry*> entries = theArchiveManager->findAllResourceEntries(sopt);
-	wxArrayString lib_paths;
-	for(unsigned a = 0; a < entries.size(); a++)
-	{
-		// Ignore SCRIPTS
-		if(S_CMPNOCASE(entries[a]->getName(true), "SCRIPTS"))
-			continue;
-
-		// Ignore entries from other archives
-		if(entry->getParent() &&
-			(entry->getParent()->getFilename(true) != entries[a]->getParent()->getFilename(true)))
-			continue;
-
-		string path = appPath(entries[a]->getName(true) + ".c", DIR_TEMP);
-		entries[a]->exportFile(path);
-		lib_paths.Add(path);
-		LOG_MESSAGE(2, "Exporting C library %s", entries[a]->getName());
-	}
 
 	// Export script to file
 	entry->exportFile(srcfile);
 
 	// Execute gdcc-cc
-	string command = path_gdcc_cc + " " + opt + " \"" + srcfile + "\" \"" + ofile + "\"";
+	string command = path_gdcc_cc + " " + opt + " \"" + srcfile + "\" -o \"" + irfile + "\"";
 	wxArrayString output;
 	wxArrayString errout;
 	theApp->SetTopWindow(parent);
@@ -1481,12 +1476,8 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 	// Delete source file
 	wxRemoveFile(srcfile);
 
-	// Delete library files
-	for(unsigned a = 0; a < lib_paths.size(); a++)
-		wxRemoveFile(lib_paths[a]);
-
 	// Check it compiled successfully
-	if(wxFileExists(ofile))
+	if(wxFileExists(irfile))
 	{
 		// If no target entry was given, find one
 		if(!target)
@@ -1502,7 +1493,7 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 					prev = entry->getParent()->addNewEntry("BEHAVIOR", entry->getParent()->entryIndex(entry));
 
 				// Import compiled script
-				prev->importFile(ofile);
+				prev->importFile(irfile);
 			}
 			else
 			{
@@ -1514,7 +1505,7 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 				opt.match_name = entry->getName(true);
 				if(entry->getParent()->getDesc().names_extensions)
 				{
-					opt.match_name += ".o";
+					opt.match_name += ".ir";
 					opt.ignore_ext = false;
 				}
 				ArchiveEntry* lib = entry->getParent()->findLast(opt);
@@ -1524,14 +1515,14 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 					lib = entry->getParent()->addEntry(new ArchiveEntry(entry->getName(true) + ".o"), "acs");
 
 				// Import compiled script
-				lib->importFile(ofile);
+				lib->importFile(irfile);
 			}
 		}
 		else
-			target->importFile(ofile);
+			target->importFile(irfile);
 
 		// Delete compiled script file
-		wxRemoveFile(ofile);
+		wxRemoveFile(irfile);
 	}
 	else
 	{
@@ -1556,7 +1547,7 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 		return false;
 	}
 
-	return true;*/
+	return true;
 }
 
 /* EntryOperations::exportAsPNG
