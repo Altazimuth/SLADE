@@ -106,7 +106,6 @@ CCPrefsPanel::CCPrefsPanel(wxWindow* parent) : PrefsPanelBase(parent)
 	vbox_inc->Add(btn_incpath_remove, 0, wxEXPAND | wxBOTTOM, 4);
 
 	// Populate include paths list
-	// list_lib_paths->Append(wxSplit(path_gdcc_cc_libs, ';'));
 	list_inc_paths->Append(wxSplit(path_gdcc_cc_incs, ';'));
 
 	// Bind events

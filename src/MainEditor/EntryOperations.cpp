@@ -51,8 +51,11 @@
 CVAR(String, path_acc, "", CVAR_SAVE);
 CVAR(String, path_acc_libs, "", CVAR_SAVE);
 CVAR(String, path_gdcc_cc, "", CVAR_SAVE);
+CVAR(String, path_gdcc_ld, "", CVAR_SAVE);
 CVAR(String, path_gdcc_cc_libs, "", CVAR_SAVE);
 CVAR(String, path_gdcc_cc_incs, "", CVAR_SAVE);
+CVAR(String, path_gdcc_libgdcc, "", CVAR_SAVE);
+CVAR(String, path_gdcc_libc, "", CVAR_SAVE);
 CVAR(String, path_pngout, "", CVAR_SAVE);
 CVAR(String, path_pngcrush, "", CVAR_SAVE);
 CVAR(String, path_deflopt, "", CVAR_SAVE);
@@ -1404,8 +1407,7 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 	
 	// Setup some path strings
 	string srcfile = appPath(entry->getName(true) + ".c", DIR_TEMP);
-	string irfile = appPath(entry->getName(true) + ".ir", DIR_TEMP);
-	string ofile = appPath(entry->getName(true) + ".o", DIR_TEMP);
+	string ofile = appPath(entry->getName(true) + ".bin", DIR_TEMP);
 	wxArrayString library_paths = wxSplit(path_gdcc_cc_libs, ';');
 	wxArrayString include_paths = wxSplit(path_gdcc_cc_incs, ';');
 
@@ -1439,7 +1441,7 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 	entry->exportFile(srcfile);
 
 	// Execute gdcc-cc
-	string command = path_gdcc_cc + " " + opt + " \"" + srcfile + "\" -o \"" + irfile + "\"";
+	string command = path_gdcc_cc + " " + opt + " \"" + srcfile + "\" -o \"" + ofile + "\"";
 	wxArrayString output;
 	wxArrayString errout;
 	theApp->SetTopWindow(parent);
@@ -1477,7 +1479,7 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 	wxRemoveFile(srcfile);
 
 	// Check it compiled successfully
-	if(wxFileExists(irfile))
+	if(wxFileExists(ofile))
 	{
 		// If no target entry was given, find one
 		if(!target)
@@ -1493,7 +1495,7 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 					prev = entry->getParent()->addNewEntry("BEHAVIOR", entry->getParent()->entryIndex(entry));
 
 				// Import compiled script
-				prev->importFile(irfile);
+				prev->importFile(ofile);
 			}
 			else
 			{
@@ -1505,24 +1507,24 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 				opt.match_name = entry->getName(true);
 				if(entry->getParent()->getDesc().names_extensions)
 				{
-					opt.match_name += ".ir";
+					opt.match_name += ".bin";
 					opt.ignore_ext = false;
 				}
 				ArchiveEntry* lib = entry->getParent()->findLast(opt);
 
 				// If it doesn't exist, create it
 				if(!lib)
-					lib = entry->getParent()->addEntry(new ArchiveEntry(entry->getName(true) + ".o"), "acs");
+					lib = entry->getParent()->addEntry(new ArchiveEntry(entry->getName(true) + ".bin"), "acs");
 
 				// Import compiled script
-				lib->importFile(irfile);
+				lib->importFile(ofile);
 			}
 		}
 		else
-			target->importFile(irfile);
+			target->importFile(ofile);
 
 		// Delete compiled script file
-		wxRemoveFile(irfile);
+		wxRemoveFile(ofile);
 	}
 	else
 	{
