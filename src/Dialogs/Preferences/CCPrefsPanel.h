@@ -10,6 +10,9 @@ class CCPrefsPanel : public PrefsPanelBase
 private:
 	wxTextCtrl*	text_ccpath;
 	wxButton*	btn_browse_ccpath;
+	wxButton*	btn_libpath_add;
+	wxButton*	btn_libpath_remove;
+	wxListBox*	list_lib_paths;
 	wxButton*	btn_incpath_add;
 	wxButton*	btn_incpath_remove;
 	wxListBox*	list_inc_paths;
@@ -25,6 +28,8 @@ public:
 	void	onBtnBrowseCCPath(wxCommandEvent& e);
 	void	onBtnAddIncPath(wxCommandEvent& e);
 	void	onBtnRemoveIncPath(wxCommandEvent& e);
+	void	onBtnAddLibPath(wxCommandEvent& e);
+	void	onBtnRemoveLibPath(wxCommandEvent& e);
 };
 
 #endif//__ACS_PREFS_PANEL_H__

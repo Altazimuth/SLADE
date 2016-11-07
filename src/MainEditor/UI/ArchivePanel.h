@@ -115,6 +115,7 @@ public:
 	bool	musMidiConvert();
 	bool	optimizePNG();
 	bool	compileACS(bool hexen = false);
+	bool	compileC();
 	bool	convertTextures();
 	bool	findTextureErrors();
 	bool	mapOpenDb2();

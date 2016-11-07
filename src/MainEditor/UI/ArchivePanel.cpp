@@ -2485,6 +2485,28 @@ bool ArchivePanel::compileACS(bool hexen)
 	return true;
 }
 
+/* ArchivePanel::compileC
+* Compiles any selected text entries as C scripts
+*******************************************************************/
+bool ArchivePanel::compileC()
+{
+	// Get selected entries
+	vector<ArchiveEntry*> selection = entry_list->getSelectedEntries();
+
+	// Go through selection
+	entry_list->setEntriesAutoUpdate(false);
+	for(unsigned a = 0; a < selection.size(); a++)
+	{
+		if(a == selection.size() - 1)
+			entry_list->setEntriesAutoUpdate(true);
+		// Compile C script
+		EntryOperations::compileC(selection[a], NULL, theMainWindow);
+	}
+	entry_list->setEntriesAutoUpdate(true);
+
+	return true;
+}
+
 /* ArchivePanel::optimizePNG
  * Compiles any selected text entries as ACS scripts
  *******************************************************************/

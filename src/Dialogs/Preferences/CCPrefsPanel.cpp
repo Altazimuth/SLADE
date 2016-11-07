@@ -38,6 +38,7 @@
 *******************************************************************/
 EXTERN_CVAR(String, path_gdcc_cc)
 EXTERN_CVAR(String, path_gdcc_cc_libs)
+EXTERN_CVAR(String, path_gdcc_cc_incs)
 
 
 /*******************************************************************
@@ -58,14 +59,34 @@ CCPrefsPanel::CCPrefsPanel(wxWindow* parent) : PrefsPanelBase(parent)
 	wxStaticBoxSizer* sizer = new wxStaticBoxSizer(frame, wxVERTICAL);
 	psizer->Add(sizer, 1, wxEXPAND | wxALL, 4);
 
-	// ACC.exe path
+	// GDCC-CC.exe path
 	wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
-	sizer->Add(new wxStaticText(this, -1, "Location of cc executable:"), 0, wxALL, 4);
+	sizer->Add(new wxStaticText(this, -1, "Location of gdcc-cc executable:"), 0, wxALL, 4);
 	text_ccpath = new wxTextCtrl(this, -1, wxString(path_gdcc_cc));
 	hbox->Add(text_ccpath, 1, wxEXPAND | wxRIGHT, 4);
 	btn_browse_ccpath = new wxButton(this, -1, "Browse");
 	hbox->Add(btn_browse_ccpath, 0, wxEXPAND);
 	sizer->Add(hbox, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 4);
+
+	// Library paths
+	sizer->Add(new wxStaticText(this, -1, "Library Paths:"), 0, wxEXPAND | wxLEFT | wxRIGHT, 4);
+	hbox = new wxBoxSizer(wxHORIZONTAL);
+	sizer->Add(hbox, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 4);
+	list_lib_paths = new wxListBox(this, -1, wxDefaultPosition, wxSize(-1, 200));
+	hbox->Add(list_lib_paths, 1, wxEXPAND | wxRIGHT, 4);
+
+	// Add library path
+	btn_libpath_add = new wxButton(this, -1, "Add");
+	wxBoxSizer* vbox_lib = new wxBoxSizer(wxVERTICAL);
+	hbox->Add(vbox_lib, 0, wxEXPAND);
+	vbox_lib->Add(btn_libpath_add, 0, wxEXPAND | wxBOTTOM, 4);
+
+	// Remove library path
+	btn_libpath_remove = new wxButton(this, -1, "Remove");
+	vbox_lib->Add(btn_libpath_remove, 0, wxEXPAND | wxBOTTOM, 4);
+
+	// Populate library paths list
+	list_lib_paths->Append(wxSplit(path_gdcc_cc_libs, ';'));
 
 	// Include paths
 	sizer->Add(new wxStaticText(this, -1, "Include Paths:"), 0, wxEXPAND | wxLEFT | wxRIGHT, 4);
@@ -76,19 +97,22 @@ CCPrefsPanel::CCPrefsPanel(wxWindow* parent) : PrefsPanelBase(parent)
 
 	// Add include path
 	btn_incpath_add = new wxButton(this, -1, "Add");
-	wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
-	hbox->Add(vbox, 0, wxEXPAND);
-	vbox->Add(btn_incpath_add, 0, wxEXPAND | wxBOTTOM, 4);
+	wxBoxSizer* vbox_inc = new wxBoxSizer(wxVERTICAL);
+	hbox->Add(vbox_inc, 0, wxEXPAND);
+	vbox_inc->Add(btn_incpath_add, 0, wxEXPAND | wxBOTTOM, 4);
 
 	// Remove include path
 	btn_incpath_remove = new wxButton(this, -1, "Remove");
-	vbox->Add(btn_incpath_remove, 0, wxEXPAND | wxBOTTOM, 4);
+	vbox_inc->Add(btn_incpath_remove, 0, wxEXPAND | wxBOTTOM, 4);
 
 	// Populate include paths list
-	list_inc_paths->Append(wxSplit(path_gdcc_cc_libs, ';'));
+	// list_lib_paths->Append(wxSplit(path_gdcc_cc_libs, ';'));
+	list_inc_paths->Append(wxSplit(path_gdcc_cc_incs, ';'));
 
 	// Bind events
 	btn_browse_ccpath->Bind(wxEVT_BUTTON, &CCPrefsPanel::onBtnBrowseCCPath, this);
+	btn_libpath_add->Bind(wxEVT_BUTTON, &CCPrefsPanel::onBtnAddLibPath, this);
+	btn_libpath_remove->Bind(wxEVT_BUTTON, &CCPrefsPanel::onBtnRemoveLibPath, this);
 	btn_incpath_add->Bind(wxEVT_BUTTON, &CCPrefsPanel::onBtnAddIncPath, this);
 	btn_incpath_remove->Bind(wxEVT_BUTTON, &CCPrefsPanel::onBtnRemoveIncPath, this);
 }
@@ -116,14 +140,23 @@ void CCPrefsPanel::applyPreferences()
 	path_gdcc_cc = text_ccpath->GetValue();
 
 	// Build include paths string
-	string paths_string;
-	wxArrayString lib_paths = list_inc_paths->GetStrings();
+	string lib_paths_string, inc_paths_string;
+	wxArrayString lib_paths = list_lib_paths->GetStrings();
+	wxArrayString inc_paths = list_inc_paths->GetStrings();
 	for(unsigned a = 0; a < lib_paths.size(); a++)
-		paths_string += lib_paths[a] + ";";
-	if(paths_string.EndsWith(";"))
-		paths_string.RemoveLast(1);
+		lib_paths_string += lib_paths[a] + ";";
+	if(lib_paths_string.EndsWith(";"))
+		lib_paths_string.RemoveLast(1);
 
-	path_gdcc_cc_libs = paths_string;
+	path_gdcc_cc_libs = lib_paths_string;
+
+
+	for(unsigned a = 0; a < inc_paths.size(); a++)
+		inc_paths_string += inc_paths[a] + ";";
+	if(inc_paths_string.EndsWith(";"))
+		inc_paths_string.RemoveLast(1);
+
+	path_gdcc_cc_incs = inc_paths_string;
 }
 
 
@@ -164,4 +197,19 @@ void CCPrefsPanel::onBtnRemoveIncPath(wxCommandEvent& e)
 {
 	if(list_inc_paths->GetSelection() >= 0)
 		list_inc_paths->Delete(list_inc_paths->GetSelection());
+}
+
+void CCPrefsPanel::onBtnAddLibPath(wxCommandEvent& e)
+{
+	wxDirDialog dlg(this, "Browse for GDCC-CC Library Path");
+	if(dlg.ShowModal() == wxID_OK)
+	{
+		list_lib_paths->Append(dlg.GetPath());
+	}
+}
+
+void CCPrefsPanel::onBtnRemoveLibPath(wxCommandEvent& e)
+{
+	if(list_lib_paths->GetSelection() >= 0)
+		list_lib_paths->Delete(list_lib_paths->GetSelection());
 }

@@ -51,6 +51,7 @@ CVAR(String, path_acc, "", CVAR_SAVE);
 CVAR(String, path_acc_libs, "", CVAR_SAVE);
 CVAR(String, path_gdcc_cc, "", CVAR_SAVE);
 CVAR(String, path_gdcc_cc_libs, "", CVAR_SAVE);
+CVAR(String, path_gdcc_cc_incs, "", CVAR_SAVE);
 CVAR(String, path_pngout, "", CVAR_SAVE);
 CVAR(String, path_pngcrush, "", CVAR_SAVE);
 CVAR(String, path_deflopt, "", CVAR_SAVE);
@@ -1403,7 +1404,8 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 	// Setup some path strings
 	string srcfile = appPath(entry->getName(true) + ".c", DIR_TEMP);
 	string ofile = appPath(entry->getName(true) + ".o", DIR_TEMP);
-	wxArrayString include_paths = wxSplit(path_acc_libs, ';');
+	wxArrayString library_paths = wxSplit(path_gdcc_cc_libs, ';');
+	wxArrayString include_paths = wxSplit(path_gdcc_cc_incs, ';');
 
 	// Setup command options
 	string opt;
@@ -1417,7 +1419,7 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 
 	// Find/export any resource libraries
 	Archive::search_options_t sopt;
-	sopt.match_type = EntryType::getType("acs");
+	sopt.match_type = EntryType::getType("sourcecode_c");
 	sopt.search_subdirs = true;
 	vector<ArchiveEntry*> entries = theArchiveManager->findAllResourceEntries(sopt);
 	wxArrayString lib_paths;
@@ -1432,17 +1434,17 @@ bool EntryOperations::compileC(ArchiveEntry* entry, ArchiveEntry* target, wxFram
 			(entry->getParent()->getFilename(true) != entries[a]->getParent()->getFilename(true)))
 			continue;
 
-		string path = appPath(entries[a]->getName(true) + ".acs", DIR_TEMP);
+		string path = appPath(entries[a]->getName(true) + ".c", DIR_TEMP);
 		entries[a]->exportFile(path);
 		lib_paths.Add(path);
-		LOG_MESSAGE(2, "Exporting ACS library %s", entries[a]->getName());
+		LOG_MESSAGE(2, "Exporting C library %s", entries[a]->getName());
 	}
 
 	// Export script to file
 	entry->exportFile(srcfile);
 
-	// Execute acc
-	string command = path_acc + " " + opt + " \"" + srcfile + "\" \"" + ofile + "\"";
+	// Execute gdcc-cc
+	string command = path_gdcc_cc + " " + opt + " \"" + srcfile + "\" \"" + ofile + "\"";
 	wxArrayString output;
 	wxArrayString errout;
 	theApp->SetTopWindow(parent);
