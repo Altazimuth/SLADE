@@ -13,20 +13,20 @@ edf : cstyle {
 		font, damagetype, skin, playerclass, sound, sounddelta, soundsequence,
 		enviromanager, ambience, frame, framedelta, string, thingtype,
 		thingdelta, splash, terrain, terraindelta, floor, menu, spritenames,
-		boss_spawner_types, castinfo, 
-		
+		boss_spawner_types, castinfo,
+
 		// Non-MAPINFO EDF keywords
 		acs_spawndata, action, activatesound, activesound, activestate,
-		addflags, alias, alphavelocity, altattackstate, args, attacksound, 
-		attenuation, baseclass, basictype, bexdest, bexsource, blanksprite, 
-		blockcentered, bloodcolor, boss_spawner_probs,  boss_spawner_types, 
-		c_font, castinfo, castorder, ceilingsequence, centerwidth, cflags, 
-		chars, chunkbasezvel, chunkclass, chunkxvelshift, chunkyvelshift, 
-		chunkzvelshift, clipping_dist, close_dist, cmd, cmds, cmp, colorable, 
-		commands, correct_height, crashstate, damage, damageamount, 
+		addflags, alias, alphavelocity, altattackstate, args, attacksound,
+		attenuation, baseclass, basictype, bexdest, bexsource, blanksprite,
+		blockcentered, bloodcolor, boss_spawner_probs,  boss_spawner_types,
+		c_font, castinfo, castorder, ceilingsequence, centerwidth, cflags,
+		chars, chunkbasezvel, chunkclass, chunkxvelshift, chunkyvelshift,
+		chunkzvelshift, clipping_dist, close_dist, cmd, cmds, cmp, colorable,
+		commands, correct_height, crashstate, damage, damageamount,
 		damagefactor, damagetimemask, damagetype, deactivatesound, deathsound,
-		deathstate, default, defaultskin, defaultsprite, dehackednum, die, 
-		diehi, dmg_deathstates, dmg_deathstates.add, dmg_deathstates.remove, 
+		deathstate, default, defaultskin, defaultsprite, dehackednum, die,
+		diehi, dmg_deathstates, dmg_deathstates.add, dmg_deathstates.remove,
 		dmg_painstates, dmg_painstates.add, dmg_painstates.remove, dmgspecial,
 		doom2_title_tics, doomednum, doorsequence, droptype, effect, end,
 		f_font, faces, factor, fall, fallhit, fastspeed, feet, filter, first,
@@ -53,22 +53,22 @@ edf : cstyle {
 		spriteframe, start, states, stopattack, stopsound, subchannel,
 		tallestchar, terrain, text, thingtype, tics, topdamage, topdamagemask,
 		translation, translucency, type, uppercase, useptclcolors, val, volume,
-		widthdelta, x, xdeathstate, xscale, y, yscale, 
-		
+		widthdelta, x, xdeathstate, xscale, y, yscale,
+
 		// Mapinfo properties
-		acsscript, altskyname, boss-specials, colormap, creator, doublesky, 
-		edf-intername, endofgame, extradata, finale-secret, finaletype, 
+		acsscript, altskyname, boss-specials, colormap, creator, doublesky,
+		edf-intername, endofgame, extradata, finale-secret, finaletype,
 		fullbright, gravity, inter-backdrop, intermusic, interpic, intertext,
-		killfinale, killstats, levelname, levelpic, levelpicnext, 
+		killfinale, killstats, levelname, levelpic, levelpicnext,
 		levelpicsecret, levelscript, leveltype, lightning, music, nextlevel,
 		nextsecret, noautosequences, outdoorfog, partime, skydelta, sky2delta,
-		skyname, sky2name, sound-swtchn, sound-swtchx, sound-stnmov, 
+		skyname, sky2name, sound-swtchn, sound-swtchx, sound-stnmov,
 		sound-pstop, sound-bdcls, sound-bdopn, sound-dorcls, sound-doropn,
 		sound-pstart, sound-fcmove, unevenlight,
-		
+
 		// Counter codepointer keywords
-		less, lessorequal, greater, greaterorequal, equal, notequal, and, 
-		less_counter, lessorequal_counter, greater_counter, 
+		less, lessorequal, greater, greaterorequal, equal, notequal, and,
+		less_counter, lessorequal_counter, greater_counter,
 		greaterorequal_counter, equal_counter, notequal_counter, and_counter,
 		weapon, flash,
 		assign, add, sub, mul, div, mod, andnot, or, xor, rand, randmod,
@@ -77,31 +77,31 @@ edf : cstyle {
 
 		// HticExplode keywords
 		default, dsparilbspark, floorfire, timebomb,
-		
+
 		// BeastPuff keywords
 		momentum, nomomentum,
-		
+
 		// Scratch keywords
 		usemisc1, usedamage, usecounter, useconstant,
-		
+
 		// StartScript keywords
 		gamescript, levelscript, acs,
-		
+
 		// SetTics keywords
 		constant, counter,
-		
+
 		// MissileAttack keywords
 		normal, homing,
-		
+
 		// BulletAttack keywords
 		ba_always, ba_never, ba_ssg, ba_monster, always, never, ssg, monster,
-		
+
 		// ThingSummon keywords
 		kill, remove, normal, makechild,
-		
+
 		// ShowMessage keywords
 		msg_console, msg_normal, msg_center,
-		
+
 		// PlaySoundEx keywords
 		chan_auto, chan_weapon, chan_voice, chan_item, chan_body, attn_normal,
 		attn_idle, attn_static, attn_none, auto, weapon, voice, item, body,
@@ -115,7 +115,7 @@ edf : cstyle {
 		FLOAT, TELEPORT, MISSILE, DROPPED, SHADOW, NOBLOOD, CORPSE, INFLOAT,
 		COUNTKILL, COUNTITEM, SKULLFLY, NOTDMATCH, TRANSLATION1, TRANSLATION2,
 		TOUCHY, BOUNCES, FRIEND, TRANSLUCENT,
-		
+
 		// Flags2
 		LOGRAV, NOSPLASH, NOSTRAFE, NORESPAWN, ALWAYSRESPAWN, REMOVEDEAD,
 		NOTHRUST, NOCROSS, JUMPDOWN, PUSHABLE, MAP07BOSS1, MAP07BOSS2, E1M8BOSS,
@@ -123,7 +123,7 @@ edf : cstyle {
 		DONTDRAW, SHORTMRANGE, LONGMELEE, RANGEHALF, HIGHERMPROB,
 		CANTLEAVEFLOORPIC, SPAWNFLOAT, INVULNERABLE, DORMANT, SEEKERMISSILE,
 		DEFLECTIVE, REFLECTIVE,
-		
+
 		// Flags3
 		GHOST, THRUGHOST, NODMGTHRUST, ACTSEESOUND, LOUDACTIVE, E5M8BOSS,
 		DMGIGNORED, BOSSIGNORE, SLIDE, TELESTOMP, WINDTHRUST, FIREDAMAGE,
@@ -131,11 +131,11 @@ edf : cstyle {
 		SUPERFRIEND, INVULNCHARGE, EXPLOCOUNT, CANNOTPUSH, TLSTYLEADD,
 		SPACMONSTER, SPACMISSILE, NOFRIENDDMG, 3DDECORATION, ALWAYSFAST,
 		PASSMOBJ, DONTOVERLAP, CYCLEALPHA, RIP,
-		
+
 		// Flags4
 		AUTOTRANSLATE, NORADIUSDMG, FORCERADIUSDMG, LOOKALLAROUND, NODAMAGE,
 		SYNCHRONIZED, NORANDOMIZE, BRIGHT,
-		
+
 		// ParticleFX flags
 	    ROCKET, GRENADE, FLIES, BFG, FLIESONDEATH, DRIP, REDFOUNTAIN,
 		GREENFOUNTAIN, BLUEFOUNTAIN, YELLOWFOUNTAIN, PURPLEFOUNTAIN,
@@ -171,7 +171,7 @@ edf : cstyle {
 		// used in "traditional" EDF declarations where the call is within a
 		// string and the SLADE lexer therefore does not notice them. As a
 		// result, they will only be highlighted when used in a DECORATE block.
-		
+
 		// Common action functions
 		A_Chase;
 		A_Die;
@@ -188,7 +188,7 @@ edf : cstyle {
 		A_PlayerSkull;
 		A_NailBomb;
 		A_Detonate;
-		
+
 		// Counter action functions
 		A_HealthJump = "state, comparison, value_or_counter";
 		A_CounterJump = "state, comparison, value_or_counter, counter";
@@ -204,7 +204,7 @@ edf : cstyle {
 		A_WeaponCtrOp = "operand, operand, counter, operation";
 		A_WeaponCopyCtr = "source, destination";
 		A_CheckReloadEx = "state, test, value_or_counter, psprite";
-		
+
 		// Doom action functions
 		A_PosAttack;
 		A_SPosAttack;
@@ -251,7 +251,7 @@ edf : cstyle {
 		A_BrainSpit;
 		A_SpawnFly;
 		A_SpawnSound;
-		
+
 		// Heretic action functions
 		A_SpawnGlitter = "dehacked_number, z_momentum";
 		A_AccelGlitter;
@@ -307,7 +307,7 @@ edf : cstyle {
 		A_ImpXDeath2;
 		A_ImpExplode;
 		A_PhoenixPuff;
-		
+
 		// General action functions
 		A_Mushroom = "thing";
 		A_Spawn;
@@ -336,7 +336,7 @@ edf : cstyle {
 		A_TargetJump = "state";
 		A_EjectCasing = "front_distance, center_dist, z_offset, casing_type";
 		A_CasingThrust = "horiz_force, vert_force";
-		
+
 		// DECORATE-inspired action functions
 		A_AlertMonsters;
 		A_CheckPlayerDone = "state";
