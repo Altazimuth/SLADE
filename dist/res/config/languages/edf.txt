@@ -10,7 +10,7 @@ edf : cstyle {
 		$override,
 
 		// General keywords
-		font, damagetype, skin, playerclass, sound, sounddelta, soundsequence,
+		font, fontdelta, damagetype, skin, playerclass, sound, sounddelta, soundsequence,
 		enviromanager, ambience, frame, framedelta, string, thingtype,
 		thingdelta, splash, terrain, terraindelta, floor, menu, spritenames,
 		boss_spawner_types, castinfo,
@@ -49,7 +49,8 @@ edf : cstyle {
 		doom2_title_tics, doomednum, doorsequence, droptype, effect, end,
 		f_font, faces, factor, fall, fallhit, fastspeed, feet, filter, first,
 		flags, flags2, flags3, flags4, flat, floorsequence, footclip, frame,
-		fullbright, gib, height, hu_font, hu_overlayfont, id, in_font,
+		fullbright, gib, height, hu_font, hu_fsmediumfont, hu_fsslargefont,
+		hu_fssmallfont, hu_overlayfont, id, in_font,
 		in_font_big, in_font_bignum, inactivestate, index, inherits,
 		intermission_fade, intermission_pause, intermission_tl, item,
 		linearformat, linearlump, linesize, link, linkpitch, linkvol, liquid,
