@@ -15,6 +15,11 @@ edf : cstyle {
 		thingdelta, splash, terrain, terraindelta, floor, menu, spritenames,
 		boss_spawner_types, castinfo,
 
+		// Animation keywords
+		animation,
+		flat, wall, lastpic, tics, flags, pic, name, tics, random, flags, min,
+		max,
+
 		// Weapon keywords
 		weaponinfo, weapondelta,
 		dehackednum, ammotype, upstate, downstate, readystate, attackstate,
@@ -118,6 +123,9 @@ edf : cstyle {
 	}
 
 	constants = {
+		// Animation flags
+		SWIRL,
+
 		// Flags
 		SPECIAL, SOLID, SHOOTABLE, NOSECTOR, NOBLOCKMAP, AMBUSH, JUSTHIT,
 		JUSTATTACKED, SPAWNCEILING, NOGRAVITY, DROPOFF, PICKUP, NOCLIP, SLIDE,
