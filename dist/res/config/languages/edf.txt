@@ -38,6 +38,15 @@ edf : cstyle {
 		sethealth, setabsorption, sortorder, type, undroppable, useaction,
 		useeffect, usesound, weapon,
 
+		// Lockdef keywords
+		lockdef,
+		require, any, message, remotemessage, keys, lockedsound, mapcolor,
+
+		// Pickup Effect keywords
+		pickupeffect,
+		pfxname, sprite, effect, effects, changeweapon, message, sound, flags,
+
+
 		// Weapon keywords
 		weaponinfo, weapondelta,
 		dehackednum, ammotype, upstate, downstate, readystate, attackstate,
