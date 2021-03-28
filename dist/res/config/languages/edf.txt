@@ -20,6 +20,10 @@ edf : cstyle {
 		flat, wall, lastpic, tics, flags, pic, name, tics, random, flags, min,
 		max,
 
+		// Compatibility Hack keywords
+		compatibilityhacks,
+		hashes, on, off,
+
 		// Weapon keywords
 		weaponinfo, weapondelta,
 		dehackednum, ammotype, upstate, downstate, readystate, attackstate,
