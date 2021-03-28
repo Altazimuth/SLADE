@@ -57,7 +57,8 @@ edf : cstyle {
 		firstdecoratestate, states, inherits, name,
 
 		// Non-MAPINFO EDF keywords
-		acs_spawndata, action, activatesound, activesound, activestate,
+		absolute.hop, absolute.push, acs_spawndata, action,
+		activatesound, activesound, activestate,
 		addflags, alias, alphavelocity, altattackstate, args, attacksound,
 		attenuation, baseclass, basictype, bexdest, bexsource, blanksprite,
 		blockcentered, bloodcolor, boss_spawner_probs,  boss_spawner_types,
