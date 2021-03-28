@@ -24,6 +24,20 @@ edf : cstyle {
 		compatibilityhacks,
 		hashes, on, off,
 
+		// Item Effect keywords
+		healtheffect, armoreffect, ammoeffect, powereffect, weapongiver,
+		artifact, healthdelta, armordelta, ammodelta, powerdelta,
+		weapongiverdelta, artifactdelta,
+		additive, additivetime, alwayspickup, ammo, ammogiven, amount, args,
+		artifacttype, ammo.backpackamount, ammo.backpackmaxamount,
+		ammo.coopstay, ammo.dmstay, ammo.dropped, ammo.give, class, classname,
+		clearammogiven, dropamount, duration, fullamountonly, icon,
+		icon.offset.x, icon.offset.y, ignoreskill, interhubamount, invbar,
+		itemid, keepdepleted, lowmessage, maxamount, maxsaveamount, noshareware,
+		overridesself, permanent, saveamount, savedivisor, savefactor,
+		sethealth, setabsorption, sortorder, type, undroppable, useaction,
+		useeffect, usesound, weapon,
+
 		// Weapon keywords
 		weaponinfo, weapondelta,
 		dehackednum, ammotype, upstate, downstate, readystate, attackstate,
