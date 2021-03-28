@@ -15,6 +15,15 @@ edf : cstyle {
 		thingdelta, splash, terrain, terraindelta, floor, menu, spritenames,
 		boss_spawner_types, castinfo,
 
+		// Weapon keywords
+		weaponinfo, weapondelta,
+		dehackednum, ammotype, upstate, downstate, readystate, attackstate,
+		flashstate, holdstate, ammouse, ammotype2, attackstate2, flashstate2,
+		holdstate2, ammouse2, selectionorder, sisterweapon, slotnumber,
+		slotselectionorder, flags, addflags, remflags, mod, recoil,
+		hapticrecoil, haptictime, upsound, readysound, fullscreenoffset,
+		firstdecoratestate, states, inherits, name,
+
 		// Non-MAPINFO EDF keywords
 		acs_spawndata, action, activatesound, activesound, activestate,
 		addflags, alias, alphavelocity, altattackstate, args, attacksound,
