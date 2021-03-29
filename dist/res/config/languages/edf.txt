@@ -147,6 +147,7 @@ edf : cstyle {
 		assign, add, sub, mul, div, mod, andnot, or, xor, rand, randmod,
 		rshift, lshift,
 		hitdice, rshift, lshift, abs, negate, not, invert,
+		multiplyone, rollmany,
 
 		// HticExplode keywords
 		default, dsparilbspark, floorfire, timebomb,
@@ -289,6 +290,7 @@ edf : cstyle {
 
 		// Counter action functions
 		A_HealthJump = "state, comparison, value_or_counter";
+		A_CounterDiceRoll = "ctr, multiplier, dicesides, staticdmg, setoradd, randomtype";
 		A_CounterJump = "state, comparison, value_or_counter, counter";
 		A_CounterJumpEx = "state, comparison, valcounter, counter";
 		A_CounterSwitch = "counter, first_frame, number_of_frames";
