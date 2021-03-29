@@ -54,6 +54,11 @@ edf : cstyle {
 		speedlookfast, speedjump, clearrebornitems, rebornitem, weaponslot,
 		alwaysjump, name, amount, weapons, clear,
 
+		// Puff keywords
+		pufftype, puffdelta,
+		thingtype, sound, hitsound, hitpufftype, nobloodpufftype,
+		upspeed, zspread, punchhack, particles,
+
 		// Skin keywords
 		skin,
 		sprite, faces, sounds, pain, diehi, oof, gib, punch,
@@ -201,6 +206,9 @@ edf : cstyle {
 
 		// Flags5
 		NOTAUTOAIMED,
+
+		// Puff Flags
+		PUFFONACTORS, BLOODLESS, LOCALTHRUST, RANDOMTICS, TARGETSHOOTER,
 
 		// Weapon Flags
 		NOTHRUST, NOHITGHOSTS, NOTSHAREWARE, DISABLEAPS, SILENCEABLE, SILENT,
