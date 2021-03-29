@@ -11,9 +11,8 @@ edf : cstyle {
 
 		// General keywords
 		font, fontdelta, damagetype, sound, sounddelta, soundsequence,
-		enviromanager, ambience, frame, framedelta, string, thingtype,
-		thingdelta, splash, terrain, terraindelta, floor, menu, spritenames,
-		boss_spawner_types, castinfo,
+		enviromanager, ambience, frame, framedelta, string, splash, terrain,
+		terraindelta, floor, menu, spritenames, boss_spawner_types, castinfo,
 
 		// Animation keywords
 		animation,
@@ -71,6 +70,12 @@ edf : cstyle {
 		// Thing Group keywords
 		thinggroup,
 		flags, types,
+
+		// Thing Type keywords
+		thingtype, thingdelta,
+		bloodtype.normal, bloodtype.impact, bloodtype.rip, bloodtype.crush,
+		bloodbehavior, clearbloodbehaviors, action, behavior, pickupeffect,
+		clearpickupeffect, effects, changeweapon, message, sound, flags,
 
 		// Weapon keywords
 		weaponinfo, weapondelta,
