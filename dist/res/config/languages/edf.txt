@@ -241,7 +241,10 @@ edf : cstyle {
 		DOOM, HERETIC,
 
 		// A_SpawnEX flags
-		NORMAL, ABSOLUTEANGLE, ABSOLUTEVELOCITY, ABSOLUTEPOSITION, CHECKPOSITION
+		NORMAL, ABSOLUTEANGLE, ABSOLUTEVELOCITY, ABSOLUTEPOSITION, CHECKPOSITION,
+
+		// A_SeekerMissile flags
+		NORMAL, LOOK, PRECISE, CURRSPEED
 	}
 
 	functions {
@@ -295,6 +298,7 @@ edf : cstyle {
 		A_CounterJumpEx = "state, comparison, valcounter, counter";
 		A_CounterSwitch = "counter, first_frame, number_of_frames";
 		A_CounterSwitchEx = "counternum, state, state, ...";
+		A_WeaponCtrJumpEx = "state, comparison, valcounter, counter, psprite";
 		A_SetCounter = "counter, value, operation";
 		A_CounterOp = "operand, operand, counter, operation";
 		A_CopyCounter = "source, destination";
@@ -410,9 +414,11 @@ edf : cstyle {
 
 		// General action functions
 		A_Mushroom = "thing";
+		A_MushroomEx = "thing_type, thing_count, vertical_range, horizontal_range, splash_damage, splash_radius";
 		A_Spawn;
 		A_SpawnEx = "thingtype, flags, forward, left, up, forward_velocity, left_velocity, up_velocity, angle, chance";
-		A_Turn;
+		A_Turn = "mode, val";
+		A_TurnProjectile = "mode, val";
 		A_Face;
 		A_Scratch = "keyword, value, sound, mod";
 		A_PlaySound;
@@ -437,6 +443,7 @@ edf : cstyle {
 		A_TargetJump = "state";
 		A_EjectCasing = "front_distance, center_dist, z_offset, casing_type";
 		A_CasingThrust = "horiz_force, vert_force";
+		A_SelfDestruct;
 
 		// DECORATE-inspired action functions
 		A_AlertMonsters;
@@ -448,6 +455,7 @@ edf : cstyle {
 		A_Jump = "chance, state, [...]";
 		A_JumpIfNoAmmo = "state";
 		A_JumpIfTargetInLOS = "statenum, fov, proj_target";
+		A_SeekerMissile = "threshold, maxturnangle, flags, chance, distance";
 		A_SetTranslucent = "alpha, mode";
 		A_PlaySoundEx = "sound, channel, loop?, attenuation, volume";
 	}
