@@ -64,6 +64,10 @@ edf : cstyle {
 		sprite, faces, sounds, pain, diehi, oof, gib, punch,
 		radio, die, fall, feet, fallhit, plwdth, noway, jump,
 
+		// Switch keywords
+		switch,
+		on, sound, offsound, gameindex,
+
 		// Weapon keywords
 		weaponinfo, weapondelta,
 		dehackednum, ammotype, upstate, downstate, readystate, attackstate,
