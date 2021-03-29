@@ -237,7 +237,10 @@ edf : cstyle {
 		AUTOSWITCHFROM, POWEREDUP, FORCETOREADY, PHOENIXRESET, DEPOWERSWITCH,
 
 		// Game name constants
-		DOOM, HERETIC
+		DOOM, HERETIC,
+
+		// A_SpawnEX flags
+		NORMAL, ABSOLUTEANGLE, ABSOLUTEVELOCITY, ABSOLUTEPOSITION, CHECKPOSITION
 	}
 
 	functions {
@@ -406,6 +409,7 @@ edf : cstyle {
 		// General action functions
 		A_Mushroom = "thing";
 		A_Spawn;
+		A_SpawnEx = "thingtype, flags, forward, left, up, forward_velocity, left_velocity, up_velocity, angle, chance";
 		A_Turn;
 		A_Face;
 		A_Scratch = "keyword, value, sound, mod";
