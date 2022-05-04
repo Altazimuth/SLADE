@@ -440,6 +440,15 @@ entry_types
 		editor = audio;
 	}
 
+	snd_ifs : sound
+	{
+		name = "Sound (Inverse Frequency Sound)";
+		format = snd_ifs;
+		export_ext = "lmp";
+		reliability = 100;
+		editor = audio;
+	}
+
 	snd_wav : sound
 	{
 		name = "Sound (Wav Format)";

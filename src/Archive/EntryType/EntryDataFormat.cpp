@@ -290,6 +290,7 @@ void EntryDataFormat::initBuiltinFormats()
 	registerDataFormat<WolfSoundDataFormat>();
 	registerDataFormat<DoomMacSoundDataFormat>();
 	registerDataFormat<DoomPCSpeakerDataFormat>();
+	registerDataFormat<InverseFrequencySoundDataFormat>();
 	registerDataFormat<AudioTPCSoundDataFormat>();
 	registerDataFormat<AudioTAdlibSoundDataFormat>();
 	registerDataFormat<JaguarDoomSoundDataFormat>();

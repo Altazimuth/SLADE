@@ -8,6 +8,7 @@ namespace conversion
 {
 	bool wavToDoomSnd(MemChunk& in, MemChunk& out);
 	bool spkSndToWav(MemChunk& in, MemChunk& out, bool audioT = false);
+	bool ifsToWav(MemChunk& in, MemChunk& out);
 	bool doomSndToWav(MemChunk& in, MemChunk& out);
 	bool wolfSndToWav(MemChunk& in, MemChunk& out);
 	bool jagSndToWav(MemChunk& in, MemChunk& out);

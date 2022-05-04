@@ -2610,6 +2610,51 @@ bool ArchivePanel::dSndWavConvert() const
 }
 
 // -----------------------------------------------------------------------------
+// Converts selected doom sound format entries to wav format
+// -----------------------------------------------------------------------------
+bool ArchivePanel::ifsWavConvert() const
+{
+	// Get selected entries
+	auto selection = entry_tree_->selectedEntries();
+
+	// Begin recording undo level
+	undo_manager_->beginRecord("Convert IFS -> Wav");
+
+	// Go through selection
+	bool errors = false;
+	for (auto& entry : selection)
+	{
+		bool     worked = false;
+		MemChunk wav;
+
+		worked = conversion::ifsToWav(entry->data(), wav);
+
+		// If successfully converted, update the entry
+		if (worked)
+		{
+			undo_manager_->recordUndoStep(std::make_unique<EntryDataUS>(entry)); // Create undo step
+			entry->importMemChunk(wav);                                          // Load wav data
+			EntryType::detectEntryType(*entry);                                  // Update entry type
+			entry->setExtensionByType();                                         // Update extension if necessary
+		}
+		else
+		{
+			log::error(wxString::Format("Unable to convert entry %s: %s", entry->name(), global::error));
+			errors = true;
+		}
+	}
+
+	// Finish recording undo level
+	undo_manager_->endRecord(true);
+
+	// Show message if errors occurred
+	if (errors)
+		wxMessageBox("Some entries could not be converted, see console log for details", "SLADE", wxICON_INFORMATION);
+
+	return true;
+}
+
+// -----------------------------------------------------------------------------
 // Converts selected mus format entries to midi format
 // -----------------------------------------------------------------------------
 bool ArchivePanel::musMidiConvert() const
@@ -3319,6 +3364,8 @@ bool ArchivePanel::handleAction(string_view id)
 		openEntryAsHex(entry_tree_->firstSelectedEntry());
 	else if (id == "arch_audio_convertdw")
 		dSndWavConvert();
+	else if (id == "arch_audio_convertifs")
+		ifsWavConvert();
 	else if (id == "arch_audio_convertwd")
 		wavDSndConvert();
 	else if (id == "arch_audio_convertmus")
@@ -3559,6 +3606,7 @@ void ArchivePanel::onEntryListRightClick(wxDataViewEvent& e)
 	bool bas_selected        = false;
 	bool wav_selected        = false;
 	bool dsnd_selected       = false;
+	bool ifs_selected        = false;
 	bool mus_selected        = false;
 	bool text_selected       = false;
 	bool unknown_selected    = false;
@@ -3610,6 +3658,11 @@ void ArchivePanel::onEntryListRightClick(wxDataViewEvent& e)
 				|| entry->type()->formatId() == "snd_jaguar" || entry->type()->formatId() == "snd_bloodsfx"
 				|| entry->type()->formatId() == "snd_voc")
 				dsnd_selected = true;
+		}
+		if (!ifs_selected)
+		{
+			if (entry->type()->formatId() == "snd_ifs")
+				ifs_selected = true;
 		}
 		if (!mus_selected)
 		{
@@ -3786,7 +3839,7 @@ void ArchivePanel::onEntryListRightClick(wxDataViewEvent& e)
 	}
 
 	// Add Audio related menu items if needed
-	if (wav_selected || dsnd_selected || mus_selected)
+	if (wav_selected || dsnd_selected || mus_selected || ifs_selected)
 	{
 		wxMenu* audio;
 		if (context_submenus)
@@ -3803,6 +3856,8 @@ void ArchivePanel::onEntryListRightClick(wxDataViewEvent& e)
 			SAction::fromId("arch_audio_convertwd")->addToMenu(audio, true);
 		if (dsnd_selected)
 			SAction::fromId("arch_audio_convertdw")->addToMenu(audio, true);
+		if (ifs_selected)
+			SAction::fromId("arch_audio_convertifs")->addToMenu(audio, true);
 		if (mus_selected)
 			SAction::fromId("arch_audio_convertmus")->addToMenu(audio, true);
 	}

@@ -1196,6 +1196,121 @@ bool conversion::spkSndToWav(MemChunk& in, MemChunk& out, bool audioT)
 }
 
 // -----------------------------------------------------------------------------
+// Converts Doom PC speaker sound data [in] to wav format, written to [out].
+//
+// This code is partly adapted from info found on:
+// http://www.shikadi.net/moddingwiki/AudioT_Format and
+// http://www.shikadi.net/moddingwiki/Inverse_Frequency_Sound_format
+// -----------------------------------------------------------------------------
+bool conversion::ifsToWav(MemChunk& in, MemChunk& out)
+{
+	static const double   ORIG_RATE     = 140.0;
+	static const int      FACTOR        = 315; // 315*140 = 44100
+	static const double   FREQ          = 1193181.0;
+	static const double   RATE          = (ORIG_RATE * FACTOR);
+	static const int      PC_VOLUME     = 20;
+
+	// --- Read Doom sound ---
+	// -- Also AudioT sound --
+
+	size_t minsize = 14;
+	if (in.size() < minsize)
+	{
+		global::error = "Invalid Inverse Frequency Sound";
+		return false;
+	}
+
+	// Read doom sound header
+	in.seek(0, SEEK_SET);
+	size_t numsamples = 0;
+
+	// Read samples
+	vector<uint16_t> osamples;
+
+	for (uint16_t currsample = in.readL16(0); currsample != 0xffff; currsample = in.readL16(numsamples * 2))
+	{
+		osamples.push_back(in.readL16((numsamples + 3) * 2));
+
+		numsamples += 1;
+
+	}
+
+	vector<uint8_t> nsamples(numsamples * FACTOR);
+
+	int      sign      = -1;
+	uint32_t phase_tic = 0;
+
+	// Convert counter values to sample values
+	for (size_t s = 0; s < numsamples; ++s)
+	{
+		if (osamples[s] > 0)
+		{
+			// First, convert counter value to frequency in Hz
+			// double f = FREQ / (double)counters[osamples[s]];
+			uint32_t tone         = osamples[s];
+			uint32_t phase_length = (tone * RATE) / (2 * FREQ);
+
+			// Then write a bunch of samples.
+			for (int i = 0; i < FACTOR; ++i)
+			{
+				// Finally, convert frequency into sample value
+				int pos       = (s * FACTOR) + i;
+				nsamples[pos] = 128 + sign * PC_VOLUME;
+				if (phase_tic++ >= phase_length)
+				{
+					sign      = -sign;
+					phase_tic = 0;
+				}
+			}
+		}
+		else
+		{
+			memset(nsamples.data() + size_t(s * FACTOR), 128, FACTOR);
+			phase_tic = 0;
+		}
+	}
+
+	// --- Write WAV ---
+
+	WavChunk    whdr, wdhdr;
+	WavFmtChunk fmtchunk;
+
+	// Setup data header
+	char did[4] = { 'd', 'a', 't', 'a' };
+	memcpy(&wdhdr.id, &did, 4);
+	wdhdr.size = numsamples * FACTOR;
+
+	// Setup fmt chunk
+	char fid[4] = { 'f', 'm', 't', ' ' };
+	memcpy(&fmtchunk.header.id, &fid, 4);
+	fmtchunk.header.size = 16;
+	fmtchunk.tag         = 1;
+	fmtchunk.channels    = 1;
+	fmtchunk.samplerate  = RATE;
+	fmtchunk.datarate    = RATE;
+	fmtchunk.blocksize   = 1;
+	fmtchunk.bps         = 8;
+
+	// Setup main header
+	char wid[4] = { 'R', 'I', 'F', 'F' };
+	memcpy(&whdr.id, &wid, 4);
+	whdr.size = wdhdr.size + fmtchunk.header.size + 20;
+
+	// Write chunks
+	out.write(&whdr, 8);
+	out.write("WAVE", 4);
+	out.write(&fmtchunk, sizeof(WavFmtChunk));
+	out.write(&wdhdr, 8);
+	out.write(nsamples.data(), numsamples * FACTOR);
+
+	// Ensure data ends on even byte boundary
+	if (numsamples % 2 != 0)
+		out.write("\0", 1);
+
+	return true;
+}
+
+// -----------------------------------------------------------------------------
 // Converts Sun/NeXT sound data [in] to wav format, written to [out]
 // -----------------------------------------------------------------------------
 bool conversion::auSndToWav(MemChunk& in, MemChunk& out)

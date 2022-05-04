@@ -74,6 +74,7 @@ public:
 	bool reloadCurrentPanel();
 	bool wavDSndConvert() const;
 	bool dSndWavConvert() const;
+	bool ifsWavConvert() const;
 	bool musMidiConvert() const;
 	bool optimizePNG() const;
 	bool compileACS(bool hexen = false) const;

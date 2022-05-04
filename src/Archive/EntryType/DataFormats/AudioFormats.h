@@ -743,6 +743,26 @@ public:
 	int isThisFormat(MemChunk& mc) override { return (mc.size() > 0 ? MATCH_MAYBE : MATCH_FALSE); }
 };
 
+class InverseFrequencySoundDataFormat : public EntryDataFormat
+{
+public:
+	InverseFrequencySoundDataFormat() : EntryDataFormat("snd_ifs") {}
+	~InverseFrequencySoundDataFormat() = default;
+
+	int isThisFormat(MemChunk& mc) override
+	{
+		size_t size = mc.size();
+		if (size > 14)
+		{
+			if (mc.data()[size - 13] == 0xff && mc.data()[size - 14] == 0xff)
+			{
+				return MATCH_TRUE;
+			}
+		}
+		return MATCH_FALSE;
+	}
+};
+
 class AudioTPCSoundDataFormat : public EntryDataFormat
 {
 public:

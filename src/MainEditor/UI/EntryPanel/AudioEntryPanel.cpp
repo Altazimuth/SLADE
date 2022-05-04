@@ -284,6 +284,8 @@ bool AudioEntryPanel::open(ArchiveEntry* entry)
 		conversion::spkSndToWav(mcdata, data_);
 	else if (entry->type()->formatId() == "snd_audiot") // AudioT PC Speaker Sound -> WAV
 		conversion::spkSndToWav(mcdata, data_, true);
+	else if (entry->type()->formatId() == "snd_ifs") // Inverse Frequency Sound -> WAV
+		conversion::ifsToWav(mcdata, data_);
 	else if (entry->type()->formatId() == "snd_wolf") // Wolfenstein 3D Sound -> WAV
 		conversion::wolfSndToWav(mcdata, data_);
 	else if (entry->type()->formatId() == "snd_voc") // Creative Voice File -> WAV
