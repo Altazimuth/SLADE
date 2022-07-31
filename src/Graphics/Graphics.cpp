@@ -131,6 +131,31 @@ bool setOffsetsDoomAlphaGfx(SeekableData& data, int xoff, int yoff)
 
 	return true;
 }
+
+// -----------------------------------------------------------------------------
+// Sets the offsets to [xoff,yoff] in the given RottGfx formatted [data]
+// -----------------------------------------------------------------------------
+bool setOffsetsRottGfx(SeekableData& data, int xoff, int yoff)
+{
+	// Get patch header
+	ROTTPatchHeader header;
+	data.seekFromStart(0);
+	data.read(&header, 10);
+
+	if (header.left == xoff && header.top == yoff)
+		return false;
+
+	// Apply new offsets and origsize
+	header.origsize = wxINT16_SWAP_ON_BE(header.width);
+	header.left     = wxINT16_SWAP_ON_BE((int16_t)(xoff - (header.width / 2)));
+	header.top      = wxINT16_SWAP_ON_BE((int16_t)(yoff - header.width));
+
+	// Write new header to entry
+	data.seekFromStart(0);
+	data.write(&header, 10);
+
+	return true;
+}
 } // namespace slade::gfx
 
 
@@ -569,6 +594,10 @@ bool gfx::setImageOffsets(MemChunk& img_data, int xoff, int yoff)
 	// Doom alpha gfx format
 	else if (format->id() == "doom_alpha")
 		return setOffsetsDoomAlphaGfx(img_data, xoff, yoff);
+
+	// ROTT gfx format, normal and masked
+	else if (format->id() == "rott" || format->id() == "rottmask")
+		return setOffsetsRottGfx(img_data, xoff, yoff);
 
 	// PNG format
 	else if (format->id() == "png")

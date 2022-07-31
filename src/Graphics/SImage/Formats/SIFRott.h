@@ -1,17 +1,12 @@
 
-class SIFRottGfx : public SIFormat
+class SIFRottGfxBase : public SIFormat
 {
 public:
-	SIFRottGfx(string_view id = "rott", string_view name = "ROTT Gfx", int reliability = 121) :
+	SIFRottGfxBase(string_view id, string_view name, int reliability) :
 		SIFormat(id, name, "dat", reliability)
 	{
 	}
-	~SIFRottGfx() = default;
-
-	bool isThisFormat(MemChunk& mc) override
-	{
-		return EntryDataFormat::format("img_rott")->isThisFormat(mc) >= EntryDataFormat::MATCH_PROBABLY;
-	}
+	~SIFRottGfxBase() = default;
 
 	SImage::Info info(MemChunk& mc, int index) override
 	{
@@ -119,13 +114,226 @@ protected:
 		return true;
 	}
 
-	bool readImage(SImage& image, MemChunk& data, int index) override { return readRottGfx(image, data, false); }
+	// TODO: Actually put in support for ROTT masked patches into this function
+	bool writeRottGfx(SImage& image, MemChunk& out, Palette* pal, bool masked)
+	{
+		// Convert image to column/post structure
+		vector<Column> columns;
+		auto           data = imageData(image);
+		auto           mask = imageMask(image);
+
+		// Go through columns
+		uint32_t offset = 0;
+		for (int c = 0; c < image.width(); c++)
+		{
+			Column col;
+			Post   post;
+			post.row_off = 0;
+			bool ispost  = false;
+
+			offset          = c;
+			uint8_t row_off = 0;
+			for (int r = 0; r < image.height(); r++)
+			{
+				// For vanilla-compatible dimensions, use a split at 128 to prevent tiling.
+				if (image.height() < 256)
+				{
+					if (row_off == 128)
+					{
+						// Finish current post if any
+						if (ispost)
+						{
+							col.posts.push_back(post);
+							post.pixels.clear();
+							ispost = false;
+						}
+					}
+				}
+
+				// If the current pixel is not transparent, add it to the current post
+				if (!mask || mask[offset] > 0)
+				{
+					// If we're not currently building a post, begin one and set its offset
+					if (!ispost)
+					{
+						// Set offset
+						post.row_off = row_off;
+
+						// Start post
+						ispost = true;
+					}
+
+					// Add the pixel to the post
+					post.pixels.push_back(data[offset]);
+				}
+				else if (ispost)
+				{
+					// If the current pixel is transparent and we are currently building
+					// a post, add the current post to the list and clear it
+					col.posts.push_back(post);
+					post.pixels.clear();
+					ispost = false;
+				}
+
+				// Go to next row
+				offset += image.width();
+				row_off++;
+			}
+
+			// If the column ended with a post, add it
+			if (ispost)
+				col.posts.push_back(post);
+
+			// Add the column data
+			columns.push_back(col);
+
+			// Go to next column
+			offset++;
+		}
+
+		// Write ROTT gfx data to output
+		out.clear();
+		out.seek(0, SEEK_SET);
+
+		// Setup header
+		gfx::ROTTPatchHeader header;
+		header.origsize = image.width();
+		header.top      = image.offset().y - image.width();
+		header.left     = image.offset().x - (image.width() / 2);
+		header.width    = image.width();
+		header.height   = image.height();
+
+		// Byteswap header values if needed
+		header.origsize = wxINT16_SWAP_ON_BE(header.origsize);
+		header.top      = wxINT16_SWAP_ON_BE(header.top);
+		header.left     = wxINT16_SWAP_ON_BE(header.left);
+		header.width    = wxINT16_SWAP_ON_BE(header.width);
+		header.height   = wxINT16_SWAP_ON_BE(header.height);
+
+		// Write it
+		out.write(&header.origsize, 2);
+		out.write(&header.width, 2);
+		out.write(&header.height, 2);
+		out.write(&header.left, 2);
+		out.write(&header.top, 2);
+
+		// Write dummy column offsets for now
+		vector<uint16_t> col_offsets(columns.size());
+		out.write(col_offsets.data(), columns.size() * 2);
+
+		// Write columns
+		for (size_t c = 0; c < columns.size(); c++)
+		{
+			// Record column offset
+			col_offsets[c] = wxUINT16_SWAP_ON_BE(out.currentPos());
+
+			// Determine column size (in bytes)
+			uint32_t col_size = 0;
+			for (auto& post : columns[c].posts)
+				col_size += post.pixels.size() + 2;
+
+			// Allocate memory to write the column data
+			out.reSize(out.size() + col_size, true);
+
+			// Write column posts
+			for (auto& post : columns[c].posts)
+			{
+				// Write row offset
+				out.write(&post.row_off, 1);
+
+				// Write no. of pixels
+				uint8_t npix = post.pixels.size();
+				out.write(&npix, 1);
+
+				// Write pixels
+				for (auto& pixel : post.pixels)
+					out.write(&pixel, 1);
+			}
+
+			// Write '255' row to signal end of column
+			uint8_t temp = 255;
+			out.write(&temp, 1);
+		}
+
+		// Now we write column offsets
+		out.seek(sizeof(gfx::ROTTPatchHeader), SEEK_SET);
+		out.write(col_offsets.data(), columns.size() * 2);
+
+		return true;
+	}
+
+private:
+	// ROTT Gfx format structs
+	struct Post
+	{
+		uint8_t         row_off;
+		vector<uint8_t> pixels;
+	};
+
+	struct Column
+	{
+		vector<Post> posts;
+	};
 };
 
-class SIFRottGfxMasked : public SIFRottGfx
+class SIFRottGfx : public SIFRottGfxBase
 {
 public:
-	SIFRottGfxMasked() : SIFRottGfx("rottmask", "ROTT Masked Gfx", 120) {}
+	SIFRottGfx() : SIFRottGfxBase("rott", "ROTT Gfx", 121) {}
+	~SIFRottGfx() = default;
+
+	bool isThisFormat(MemChunk& mc) override
+	{
+		return EntryDataFormat::format("img_rott")->isThisFormat(mc) >= EntryDataFormat::MATCH_PROBABLY;
+	}
+
+	Writable canWrite(SImage& image) override
+	{
+		// Must be converted to paletted to be written
+		if (image.type() == SImage::Type::PalMask)
+			return Writable::Yes;
+		else
+			return Writable::Convert;
+	}
+
+	bool canWriteType(SImage::Type type) override
+	{
+		// ROTT format gfx can only be written as paletted
+		if (type == SImage::Type::PalMask)
+			return true;
+		else
+			return false;
+	}
+
+	bool convertWritable(SImage& image, ConvertOptions opt) override
+	{
+		// Do mask conversion
+		if (!opt.transparency)
+			image.fillAlpha(255);
+		else if (opt.mask_source == Mask::Colour)
+			image.maskFromColour(opt.mask_colour, opt.pal_target);
+		else if (opt.mask_source == Mask::Alpha)
+			image.cutoffMask(opt.alpha_threshold);
+
+		// Convert to paletted
+		image.convertPaletted(opt.pal_target, opt.pal_current);
+
+		return true;
+	}
+
+private:
+	bool readImage(SImage& image, MemChunk& data, int index) override { return readRottGfx(image, data, false); }
+
+	bool writeImage(SImage &image, MemChunk &out, Palette *pal, int index) override
+	{
+		return writeRottGfx(image, out, pal, false);
+	}
+};
+
+class SIFRottGfxMasked : public SIFRottGfxBase
+{
+public:
+	SIFRottGfxMasked() : SIFRottGfxBase("rottmask", "ROTT Masked Gfx", 120) {}
 	~SIFRottGfxMasked() = default;
 
 	bool isThisFormat(MemChunk& mc) override { return EntryDataFormat::format("img_rottmask")->isThisFormat(mc); }
