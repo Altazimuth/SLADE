@@ -259,6 +259,15 @@ protected:
 		out.seek(sizeof(gfx::ROTTPatchHeader), SEEK_SET);
 		out.write(col_offsets.data(), columns.size() * 2);
 
+		// Allocate memory to write dummy data at the end,
+		// solely to stop ROTT patches being read as Doom beta ones
+		constexpr int NUM_DUMMY_BYTES = 16;
+		const uint8_t padding_value = 0xAB;
+		out.reSize(out.size() + NUM_DUMMY_BYTES, true);
+		out.seek(NUM_DUMMY_BYTES, SEEK_END);
+		for (int i = 0; i < NUM_DUMMY_BYTES; i++)
+			out.write(&padding_value, 1);
+
 		return true;
 	}
 
